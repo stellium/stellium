@@ -1,0 +1,27 @@
+[
+    {
+        "role_id": 1,
+        "group": "Super Admin",
+        "info": "Super admin have access to every feature on Stellium"
+    },
+    {
+        "role_id": 2,
+        "group": "Administrator",
+        "info": "Administrator have access to every feature except users management (create, delete, edit user accounts)"
+    },
+    {
+        "role_id": 3,
+        "group": "Editor",
+        "info": "Editors have access to edit contents such as websites, blog posts, products etc."
+    },
+    {
+        "role_id": 4,
+        "group": "Author",
+        "info": "Authors have access to create and edit blog posts. Authors can only edit posts that were created with their own account"
+    },
+    {
+        "role_id": 5,
+        "group": "Developer",
+        "info": "Developers can change technical system settings, edit template and style files, edit and create pages."
+    }
+]

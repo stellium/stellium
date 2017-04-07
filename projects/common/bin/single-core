@@ -1,0 +1,37 @@
+const fs = require('fs');
+
+
+function initiate(env,
+                  app,
+                  port,
+                  http,
+                  https,
+                  onError,
+                  onListening) {
+
+    app.set('port', port);
+
+    let server;
+
+    if (!env.use_ssl) {
+
+        server = http.createServer(app);
+
+    } else {
+
+        let options = {
+            key: fs.readFileSync(env.ssl_path + (env.key_file || 'localhost.key')),
+            cert: fs.readFileSync(env.ssl_path + (env.crt_file || 'localhost.crt')),
+            requestCert: false,
+            rejectUnauthorized: false
+        };
+
+        server = https.createServer(options, app);
+    }
+
+    server.listen(port);
+    server.on('error', onError);
+    server.on('listening', onListening(server, port));
+}
+
+module.exports = initiate;

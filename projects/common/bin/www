@@ -1,0 +1,87 @@
+#!/usr/bin/env node
+
+module.exports = function (env) {
+
+    require('./globals')(env)
+
+    return function (app) {
+
+        const fs = require('fs')
+        const https = require('https')
+        const http = require('http')
+
+        process.env.NODE_ENV = env.production ? 'production' : 'development'
+
+        let port = normalizePort(env.port)
+
+
+////////////////////////////////////////////////////////////
+        if (env.multi_cluster) require('./multi-core')(
+            env,
+            app,
+            port,
+            http,
+            https,
+            onError,
+            onListening);
+        else require('./single-core')(
+            env,
+            app,
+            port,
+            http,
+            https,
+            onError,
+            onListening);
+////////////////////////////////////////////////////////////
+
+        function onListening(server, port) {
+            return () => {
+                console.log('Server listening on port ' + port);
+                let addr = server.address();
+                let bind = typeof addr === 'string'
+                    ? 'pipe ' + addr
+                    : 'port ' + addr.port;
+                debug('Listening on ' + bind);
+            }
+        }
+
+
+        let debug = require('debug')('matter_express:BlogRouter');
+
+
+        function normalizePort(val) {
+            let port = parseInt(val, 10);
+            if (isNaN(port)) {
+                // named pipe
+                return val;
+            }
+            if (port >= 0) {
+                // port number
+                return port;
+            }
+            return false;
+        }
+
+        function onError(error) {
+            if (error.syscall !== 'listen') {
+                throw error;
+            }
+            let bind = typeof port === 'string'
+                ? 'Pipe ' + port
+                : 'Port ' + port;
+            // handle specific listen errors with friendly messages
+            switch (error.code) {
+                case 'EACCES':
+                    console.error(bind + ' requires elevated privileges');
+                    process.exit(1);
+                    break;
+                case 'EADDRINUSE':
+                    console.error(bind + ' is already in use');
+                    process.exit(1);
+                    break;
+                default:
+                    throw error;
+            }
+        }
+    }
+}

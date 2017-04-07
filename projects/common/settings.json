@@ -1,0 +1,96 @@
+[
+    {
+        "title": "Google Analytics View ID",
+        "key": "analytics_view_id",
+        "value": "146874601",
+        "type": "text",
+        "description": "Analytics view ID obtained from the Google Analytics Dashboard to view your website's analytical data on the Stellium dashboard",
+        "allowed_roles": [
+            1,
+            2,
+            5
+        ],
+        "messages": [
+            {
+                "match": "exact",
+                "value": "",
+                "color": "red",
+                "description": "Leaving this value blank will have decremental effects on your website's page analytics. Page views and other visitor activities will not be tracked."
+            }
+        ]
+    },
+    {
+        "title": "SMTP Host",
+        "key": "smtp_host",
+        "value": "smtp.gmail.com",
+        "type": "text",
+        "description": "SMTP host to send emails with",
+        "allowed_roles": [
+            1,
+            5
+        ]
+    },
+    {
+        "title": "SMTP Port",
+        "key": "smtp_port",
+        "value": 587,
+        "type": "number",
+        "description": "Port used to connect to the SMTP server when sending out emails",
+        "allowed_roles": [
+            1,
+            5
+        ]
+    },
+    {
+        "title": "SMTP use SSL",
+        "key": "smtp_ssl",
+        "value": false,
+        "type": "boolean",
+        "description": "Whether to use Secure Sockets Layer when connecting to the SMTP Servers",
+        "allowed_roles": [
+            1,
+            5
+        ]
+    },
+    {
+        "title": "SMTP auth user",
+        "key": "smtp_auth_user",
+        "value": "fleavasmtp@gmail.com",
+        "type": "text",
+        "description": "The email address that will be used to send out emails with. This includes internal notifications, booking inquiries and critical user actions.",
+        "allowed_roles": [
+            1,
+            5
+        ]
+    },
+    {
+        "title": "SMTP auth password",
+        "key": "smtp_auth_password",
+        "value": "immnruylyxlwpawo",
+        "type": "text",
+        "description": "The password that will be used when authenticating to the SMTP server each time the system sends out an email. This has to match with the email provided above.",
+        "allowed_roles": [
+            1,
+            5
+        ]
+    },
+    {
+        "title": "Hot Page Reload",
+        "key": "hot_page_reload",
+        "value": true,
+        "type": "boolean",
+        "description": "Super boost your visitor's experience by serving your website pages even faster. Uses Stellium's sophisticated caching and rendering mechanism to serve pages in near real-time, no page reloads!",
+        "allowed_roles": [
+            1,
+            5
+        ],
+        "messages": [
+            {
+                "match": "exact",
+                "value": true,
+                "color": "blue",
+                "description": "Hot Page Reload is an experimental feature. This feature may break some front end functionalities if the theme does not support the hot reload module."
+            }
+        ]
+    }
+]

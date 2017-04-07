@@ -1,0 +1,12 @@
+*.DS_Store
+
+node_modules
+.idea
+.vscode
+env.js
+dist
+projects/*
+!/projects/common/
+!/projects/_env.js
+yarn.lock
+*-error.*
