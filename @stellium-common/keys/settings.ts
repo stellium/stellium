@@ -1,0 +1,18 @@
+export const SettingsKeys = {
+    SMTPHost: 'smtp_host',
+    SMTPPort: 'smtp_port',
+    SMTPSsl: 'smtp_ssl',
+    SMTPAuthUser: 'smtp_auth_user',
+    SMTPAuthPassword: 'smtp_auth_password',
+    WebsiteTitle: 'website_title',
+    DefaultMetaDescription: 'default_meta_description',
+    FacebookLink: 'facebook_link',
+    TwitterLink: 'twitter_link',
+    InstagramLink: 'instagram_link',
+    LinkedInLink: 'linkedin_link',
+    GoogleLink: 'google_link',
+    ContactEmail: 'contact_email',
+    AnalyticsTrackingID: 'analytics_tracking_id',
+    AnalyticsViewID: 'analytics_view_id',
+    HotPageReload: 'hot_page_reload',
+}
