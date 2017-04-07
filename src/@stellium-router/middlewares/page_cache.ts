@@ -1,6 +1,9 @@
-// import * as colors from 'colors';
-import * as redis from 'redis';
-import {LanguageKeys, translateCacheUrl} from "../../@stellium-common";
+import * as redis from 'redis'
+import {
+    LanguageKeys,
+    translateCacheUrl,
+    CacheKeys
+} from '../../@stellium-common'
 const redisClient = redis.createClient()
 
 
@@ -16,14 +19,23 @@ export const PageCacheMiddleware = (req, res, next) => {
     // append `_hot` keyword for hot reloaded content
     if (req.query.hot) cachedKey += '_hot'
 
-    redisClient.get(cachedKey, (err, cachedPage) => {
+    redisClient.get(cachedKey, (err, cachedPageMeta) => {
 
-        if (!cachedPage) {
+        if (!cachedPageMeta) {
             next()
             return
         }
 
+        const analyticsVisitor = req.app.get(CacheKeys.UAVisitor)
+
+        analyticsVisitor && analyticsVisitor.page(req.originalUrl).send()
+
+        if (req.query.hot) {
+            res.send(JSON.parse(cachedPageMeta))
+            return
+        }
+
         // Page exists in cache, return cached version
-        res.send(cachedPage)
+        res.send(cachedPageMeta)
     })
 }

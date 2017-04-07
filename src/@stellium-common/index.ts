@@ -1,4 +1,5 @@
 export * from './development'
+export * from './mailer'
 export * from './monolog'
 export * from './path'
 export * from './schemas'

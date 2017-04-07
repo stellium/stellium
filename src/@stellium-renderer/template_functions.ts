@@ -17,14 +17,13 @@ import {
     ReservedPageKeys,
     URLTranslator,
     SettingsKeys,
-} from '../@stellium-common'
-import ReadWriteStream = NodeJS.ReadWriteStream;
-import {
+    CacheKeys,
     Translatable,
     WebsitePageSchema,
     SystemSettingsSchema,
     WebsitePageModuleSchema
-} from "../@stellium-common";
+} from '../@stellium-common'
+import ReadWriteStream = NodeJS.ReadWriteStream;
 import {toJSON} from "./lib/to_json";
 
 
@@ -111,9 +110,13 @@ export class TemplateFunctions {
     __request: Request
 
 
+    iFrameMode: boolean
+
+
     constructor(private req: Request) {
         this.__request = req
-        this.projectSettings = req.app.get('project_settings')
+        this.iFrameMode = req.app.get('iframe')
+        this.projectSettings = req.app.get(CacheKeys.SettingsKey)
         this.currentLanguage = req.app.get(LanguageKeys.CurrentLanguage)
         this.defaultLanguage = req.app.get(LanguageKeys.DefaultLanguage)
         this.availableLanguages = req.app.get(LanguageKeys.AvailableLanguages)
@@ -165,9 +168,9 @@ export class TemplateFunctions {
 
     public getSettingsByKey(settingsKey: string): string {
 
-        const setting = this.projectSettings.find(_setting => _setting.key === settingsKey)
+        const _settings = this.projectSettings && this.projectSettings.find(_setting => _setting.key === settingsKey)
 
-        return setting && setting.value
+        return _settings && _settings.value || null
     }
 
 
@@ -247,10 +250,42 @@ export class TemplateFunctions {
                 result = '#anchor-id-' + this._moduleIndex
                 break;
             case 'pdf':
-                result = 'pdf/' + link.url;
+                result = 'c/pdf/' + link.url;
                 break;
         }
         return stripHash ? result.replace(/^#/, '') : result;
+    }
+
+
+    private _stelliumLinkCompiler(text,
+                                  link: { type: string, url: string },
+                                  attributes: any = {}): string {
+
+        const basicLinkTemplate = `<a href="${this.getEmbeddedLink(link)}">${text}</a>`
+
+        const $ = cheerio.load(basicLinkTemplate)
+
+        const linkElement = $('a')
+
+        for (let i in attributes) {
+            if (attributes.hasOwnProperty(i)) {
+                linkElement.attr(i, attributes[i])
+            }
+        }
+
+        linkElement.attr('data-stellium-link-type', link.type)
+
+        // Returns the modified element as string
+        return $.html()
+    }
+
+
+    get DOMCompiler(): any {
+
+        return {
+            // Create links
+            Link: (...args) => this._stelliumLinkCompiler(...args)
+        }
     }
 
 
@@ -378,50 +413,51 @@ export class TemplateFunctions {
          * @time - 6:54 PM
          */
         /*
-        let sourceScriptPath = path.resolve(ViewsPath, 'modules', moduleData.template, 'component.js')
+         let sourceScriptPath = path.resolve(ViewsPath, 'modules', moduleData.template, 'component.js')
 
-        let targetScriptPath = path.resolve(CachePath, 'js', moduleData.template)
+         let targetScriptPath = path.resolve(CachePath, 'js', moduleData.template)
 
-        try {
-            fs.accessSync(path.resolve(targetScriptPath, 'component.js'))
-            // the compiled script already exists, skip
-            return
-        } catch (e) {
-            // move on as the script does not exist yet
-        }
+         try {
+         fs.accessSync(path.resolve(targetScriptPath, 'component.js'))
+         // the compiled script already exists, skip
+         return
+         } catch (e) {
+         // move on as the script does not exist yet
+         }
 
-        try {
-            fs.accessSync(sourceScriptPath)
-        } catch (e) {
-            return
-        }
+         try {
+         fs.accessSync(sourceScriptPath)
+         } catch (e) {
+         return
+         }
 
-        mkdirp.sync(targetScriptPath)
+         mkdirp.sync(targetScriptPath)
 
-        browserify(sourceScriptPath)
-        .transform(babelify, {presets: ["es2015"]})
-        .transform(<(file: string, opts?: any) => ReadWriteStream>uglify)
-        .bundle()
-        .pipe(fs.createWriteStream(path.resolve(targetScriptPath, 'component.js')))
-        */
+         browserify(sourceScriptPath)
+         .transform(babelify, {presets: ["es2015"]})
+         .transform(<(file: string, opts?: any) => ReadWriteStream>uglify)
+         .bundle()
+         .pipe(fs.createWriteStream(path.resolve(targetScriptPath, 'component.js')))
+         */
     }
 
 
     private _shimCssRules(moduleData: any): void {
 
-        let scssPath = path.resolve(ViewsPath, 'modules', moduleData.template, 'component.scss');
+        let scssPath = path.resolve(ViewsPath, 'modules', moduleData.template, 'component.scss')
 
         try {
-            fs.accessSync(scssPath);
+            fs.accessSync(scssPath)
         } catch (e) {
             // we don't really care move on
             return
         }
 
         // CSS results as string, converted from buffer
-        let cssString = nodeSass.renderSync({file: scssPath});
+        let cssString = nodeSass.renderSync({file: scssPath})
+
         // CSS as JSON
-        let astCss = css.parse(cssString.css.toString('UTF-8'));
+        let astCss = css.parse(cssString.css.toString('UTF-8'))
 
         astCss.stylesheet.rules.forEach(cssRule => {
 
@@ -434,25 +470,25 @@ export class TemplateFunctions {
 
                 if (_rule.includes(':')) {
 
-                    let pseudoDelimited = _rule.split(':');
+                    let pseudoDelimited = _rule.split(':')
 
-                    return pseudoDelimited.join(`[${this._moduleComponentId}]:`);
+                    return pseudoDelimited.join(`[${this._moduleComponentId}]:`)
                 }
-                return `${_rule}[${this._moduleComponentId}]`;
-            });
-        });
+                return `${_rule}[${this._moduleComponentId}]`
+            })
+        })
 
         // Convert CSS AST to string
-        let shimmedCssString = css.stringify(astCss);
+        let shimmedCssString = css.stringify(astCss)
 
         // Assert that the directory to the components css exists
-        mkdirp.sync(path.resolve(CachePath, 'css', moduleData.template));
+        mkdirp.sync(path.resolve(CachePath, 'css', moduleData.template))
 
         fs.writeFileSync(
             path.resolve(CachePath, 'css', moduleData.template, 'component.css'),
             shimmedCssString,
             {encoding: 'UTF-8'}
-        );
+        )
     }
 
 
@@ -518,29 +554,32 @@ export class TemplateFunctions {
          * }
          */
         // Prepend `anchor link target` if the section is set up as an anchor target
-        moduleElement.prepend(`<span class="anchor-target" id="anchor-id-${this._moduleIndex}"></span>`);
+        moduleElement.prepend(`<span class="anchor-target" id="anchor-id-${this._moduleIndex}"></span>`)
 
         // Set module template name
-        moduleElement.attr('mt-stellium-module-template', moduleData.template);
+        if (!this.iFrameMode) moduleElement.attr('mt-stellium-module-template', moduleData.template)
 
-        if (isSection) {
+        if (isSection && this.iFrameMode) {
 
             // Assign stellium class for click handling in page editor
-            moduleElement.addClass('mt-stellium-module');
+            moduleElement.addClass('mt-stellium-module')
 
             // Assign stellium module order number for Stellium medium sorting
-            moduleElement.attr('mt-stellium-module-order', ++this._moduleOrder);
+            moduleElement.attr('mt-stellium-module-order', ++this._moduleOrder)
 
             // Assign stellium module order number for Stellium medium sorting
-            moduleElement.addClass('mt-stellium-module-order');
+            moduleElement.addClass('mt-stellium-module-order')
         }
 
-        allElements.attr(this._moduleComponentId, '');
+        allElements.attr(this._moduleComponentId, '')
+
+        const templateAsString = $.html()
+
+        if (!DEVELOPMENT) return templateAsString
 
         // Return the manipulated HTML Element as string
-        return `<!-- module-start:${moduleData.template} -->
-                              ${$.html()}
-                <!-- module-end:${moduleData.template} -->`;
+        // add comment if in Dev mode
+        return `<!-- module-start:${moduleData.template} -->${templateAsString}<!-- module-end:${moduleData.template} -->`
     }
 
 

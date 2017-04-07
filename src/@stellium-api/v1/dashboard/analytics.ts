@@ -6,6 +6,9 @@ import {Router} from 'express'
 import {StoragePath, Monolog} from '../../../@stellium-common'
 import {SystemSettingsModel} from '../../../@stellium-database'
 import {CacheQueryResult} from "../resource_cache";
+import {getSettingsByKey} from "../../../@stellium-common/tools/extract_settings";
+import {CacheKeys} from "../../../@stellium-common/keys/cache_keys";
+import {SettingsKeys} from "../../../@stellium-common/keys/settings";
 
 const analytics = google.analytics('v3')
 
@@ -107,24 +110,23 @@ AnalyticsRouter.get('/', (req, res) => {
             return
         }
 
-        SystemSettingsModel.findOne({key: 'analytics_view_id'}, (err, _setting) => {
+        const analyticsViewID = getSettingsByKey(SettingsKeys.AnalyticsViewID, req.app.get(CacheKeys.SettingsKey), true)
 
-            async.map(bundles, getAnalyticsData(_setting.value), (err, data) => {
+        async.map(bundles, getAnalyticsData(analyticsViewID), (err, data) => {
 
-                if (err) {
-                    res.status(500).send()
-                    Monolog({
-                        message: 'Error while fetching analytics data',
-                        error: err
-                    })
-                    return
-                }
+            if (err) {
+                res.status(500).send()
+                Monolog({
+                    message: 'Error while fetching analytics data',
+                    error: err
+                })
+                return
+            }
 
-                res.send(data)
+            res.send(data)
 
-                // Cache analytics result to redis
-                CacheQueryResult(req, data)
-            })
+            // Cache analytics result to redis
+            CacheQueryResult(req, data)
         })
     })
 })

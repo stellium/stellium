@@ -38,16 +38,13 @@ export const readSeederFile = (collection: string, cb) => {
     // Just in case the developer left .json in the collection name, remove it
     collection = collection.replace(/.json$/g, '');
 
-    fs.readFile(
-        path.resolve(RootPath, 'seeders', collection + '.json'),
-        'utf8',
-        (err, result) => {
+    fs.readFile(path.resolve(RootPath, 'seeders', collection + '.json'), 'utf8', (err, result) => {
 
             if (err) {
-                console.log(`Project scoped ${collection} seeder does not exist, using global seeder.`)
+                SeedConsole(`Project scoped ${collection} seeder does not exist, using global seeder.`, 'yellow')
             }
 
-            fs.readFile(path.resolve(RootPath, '..', 'common', collection + '.json'), 'utf8', (err, commonResult) => {
+            fs.readFile(path.resolve(RootPath, '..', 'common/seeders', collection + '.json'), 'utf8', (err, commonResult) => {
 
                 let returnedData = result ? JSON.parse(result) : []
 

@@ -6,6 +6,7 @@ import {V1Router} from './v1/router'
 import {AuthenticationRouter} from "./auth/authenticate";
 import {SystemUserModel} from "../@stellium-database";
 import {addStelliumHeaders} from "./_lib/cors_middleware";
+import {SystemSettingsMiddleware} from "../@stellium-router";
 const LocalStrategy = require('passport-local').Strategy
 
 
@@ -37,6 +38,8 @@ export class ApiRouter {
 
         this.router.use(addStelliumHeaders)
 
+        this.router.use(SystemSettingsMiddleware)
+
         this.router.use('/authenticate', AuthenticationRouter)
 
         this.router.use('/v1', V1Router)
@@ -54,10 +57,12 @@ export class ApiRouter {
             next(err)
         })
 
+        /*
         this.router.use((err, req, res, next) => {
             if (err.name === 'UnauthorizedError') {
                 res.status(401).send('invalid token...')
             }
         })
+        */
     }
 }

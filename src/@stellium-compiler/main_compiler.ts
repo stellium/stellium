@@ -9,7 +9,7 @@ import * as babelify from 'babelify'
 import * as nodeSass from 'node-sass'
 import * as browserify from 'browserify'
 import * as redis from 'redis'
-import {CachePath, ViewsPath} from "../@stellium-common/path/common_paths"
+import {CachePath, ViewsPath} from "../@stellium-common"
 import ReadWriteStream = NodeJS.ReadWriteStream
 
 

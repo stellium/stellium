@@ -12,7 +12,7 @@ import {ApplicationRouter} from '../@stellium-router'
 import {ApiRouter} from '../@stellium-api'
 import {ErrorsHandler} from './errors_handler'
 import {ServerConfig} from './config.interface'
-import {compileScripts} from "./compile_scripts";
+import {compileScripts} from "../@stellium-compiler";
 
 
 const RedisStore = connectRedis(session)
@@ -29,11 +29,23 @@ export class ApplicationServer {
      * @method bootstrap
      * @static
      */
-    public static bootstrap(config?: ServerConfig): ApplicationServer {
-        rimraf(CachePath, () => {
-            compileScripts()
+    public static bootstrap(config?: ServerConfig): Promise<ApplicationServer> {
+
+        return new Promise((resolve, reject) => {
+
+            rimraf(CachePath, () => {
+
+                compileScripts(err => {
+
+                    if (err) {
+                        reject(err)
+                        return
+                    }
+
+                    resolve(new ApplicationServer(config))
+                })
+            })
         })
-        return new ApplicationServer(config)
     }
 
 
@@ -41,7 +53,7 @@ export class ApplicationServer {
 
         (<any>mongoose).Promise = global.Promise
 
-        mongoose.connect('mongodb://localhost/'+config.database)
+        mongoose.connect('mongodb://localhost/' + config.database)
 
         this.configure()
 
@@ -62,6 +74,8 @@ export class ApplicationServer {
         // Use logger in development mode
         if (DEVELOPMENT) app.use(logger('dev'))
 
+        new ApiRouter(app)
+
         let _session = {
             secret: ENV.secret,
             resave: false,
@@ -78,15 +92,6 @@ export class ApplicationServer {
 
         app.use(session(_session))
 
-        new ApiRouter(app)
-
-        /**
-         * TODO(important): Re-introduce ajax routes in stellium-router
-         * @date - 25 Mar 2017
-         * @time - 7:26 PM
-         */
-        // new AjaxRouter(app)
-        
         // Template resource routes for dynamic pages
         new ApplicationRouter(app)
 

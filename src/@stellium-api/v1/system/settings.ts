@@ -20,17 +20,18 @@ const saveSettingItem = (req: Request) => (settings: SystemSettingsSchema, cb: (
         return
     }
 
-    SystemSettingsModel.findById(settings._id, (err, sett) => {
+    SystemSettingsModel.findById(settings._id, (err, _settings) => {
 
         // Only allow master administrators to alter locked settings fields
-        if (sett.locked && authRole !== 0) {
+        if (_settings.locked && authRole !== 0) {
             cb(null)
             return
         }
 
-        if (sett.allowed_roles.includes(authRole) || authRole <= 1) {
+        // Only allow the user to alter settings within their role scope
+        if (_settings.allowed_roles.includes(authRole) || authRole <= 1) {
 
-            sett.update({value: settings.value}, err => cb(err))
+            _settings.update({value: settings.value}, err => cb(err))
 
         } else {
 

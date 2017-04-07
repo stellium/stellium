@@ -6,8 +6,7 @@ import * as redis from 'redis'
 import * as express from 'express'
 import {Router} from 'express'
 import {ENV, minifyTemplate, Monolog, ViewsPath, LanguageKeys} from '../../../@stellium-common'
-import {CommonRenderer} from '../../../@stellium-renderer'
-import {ResolveDatabaseDependencies} from "../../../@stellium-renderer/database_resolver";
+import {CommonRenderer, ResolveDatabaseDependencies} from "../../../@stellium-renderer";
 
 
 const redisClient = redis.createClient()

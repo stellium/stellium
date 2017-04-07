@@ -1,3 +1,4 @@
+export {getSettingsByKey} from './extract_settings'
 export {minifyTemplate} from './minify'
 export {sortByKey} from './sort_functions'
 export {translateCacheUrl} from './translate_cache_url'

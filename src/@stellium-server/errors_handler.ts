@@ -19,9 +19,9 @@ export class ErrorsHandler {
 
         // Catch 404 if none of the above routes are hooked
         this.app.use((req, res, next) => {
-            let err = new Error('Not Found');
-            err['status'] = 404;
-            next(err);
+            let err = new Error('Not Found')
+            err['status'] = 404
+            next(err)
         })
     }
 

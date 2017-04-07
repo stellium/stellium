@@ -14,25 +14,14 @@ module.exports = function (env) {
 
         let port = normalizePort(env.port)
 
+        const commonServerConfig = [env, app, port, http, https, onError, onListening]
 
-////////////////////////////////////////////////////////////
-        if (env.multi_cluster) require('./multi-core')(
-            env,
-            app,
-            port,
-            http,
-            https,
-            onError,
-            onListening);
-        else require('./single-core')(
-            env,
-            app,
-            port,
-            http,
-            https,
-            onError,
-            onListening);
-////////////////////////////////////////////////////////////
+
+        // Whether to use single or multi threaded process
+        ////////////////////////////////////////////////////////////
+        if (env.multi_cluster) require('./multi-core')(...commonServerConfig);
+        else require('./single-core')(...commonServerConfig);
+        ////////////////////////////////////////////////////////////
 
         function onListening(server, port) {
             return () => {

@@ -7,11 +7,10 @@ import * as mkdirp from 'mkdirp'
 import * as express from 'express'
 import * as nodemailer from 'nodemailer'
 import {Router} from "express"
-import {SystemUserModel} from "../../../@stellium-database"
-import {Monolog, StoragePath, SettingsKeys} from "../../../@stellium-common"
+import {SystemUserModel, SystemSettingsModel} from "../../../@stellium-database"
+import {Monolog, StoragePath, SettingsKeys, ResolveMailConfiguration, getSettingsByKey} from "../../../@stellium-common"
 import {ClearCacheValueByRequest} from "../resource_cache";
-import {ResolveMailConfiguration} from "../../../@stellium-common/mailer/mailer_configuration";
-import {SystemSettingsModel} from "../../../@stellium-database/models/system_settings";
+import {CacheKeys} from "../../../@stellium-common/keys/cache_keys";
 
 
 export const UsersRouter: Router = express.Router()
@@ -415,30 +414,29 @@ UsersRouter.delete('/:userId', (req, res) => {
                 // notify, note, confirm_email
                 // mail user with req.query.note
 
-                SystemSettingsModel.findOne({key: SettingsKeys.WebsiteTitle}, (err, settings) => {
+                const websiteTitle = getSettingsByKey(SettingsKeys.WebsiteTitle, req.app.get(CacheKeys.SettingsKey), true)
 
-                    ResolveMailConfiguration((err, config) => {
+                ResolveMailConfiguration((err, config) => {
 
-                        ejs.renderFile(path.resolve(StoragePath, 'views/email_templates', 'user_delete.ejs'), {
-                            message: req.query.note,
-                            title: settings.value
-                        }, (err, htmlTemplate) => {
+                    ejs.renderFile(path.resolve(StoragePath, 'views/email_templates', 'user_delete.ejs'), {
+                        message: req.query.note,
+                        title: websiteTitle
+                    }, (err, htmlTemplate) => {
 
-                            console.log('htmlTemplate', htmlTemplate)
+                        console.log('htmlTemplate', htmlTemplate)
 
-                            let mailData = {
-                                from: req.user.email,
-                                to: user.email,
-                                cc: req.user.email,
-                                subject: settings.value + ' - Your User Account Has Been Deleted',
-                                text: req.query.note,
-                                html: htmlTemplate
-                            }
+                        let mailData = {
+                            from: req.user.email,
+                            to: user.email,
+                            cc: req.user.email,
+                            subject: websiteTitle + ' - Your User Account Has Been Deleted',
+                            text: req.query.note,
+                            html: htmlTemplate
+                        }
 
-                            nodemailer.createTransport(config).sendMail(mailData, (err, status) => {
-                                console.log('err', err)
-                                console.log('status', status)
-                            })
+                        nodemailer.createTransport(config).sendMail(mailData, (err, status) => {
+                            console.log('err', err)
+                            console.log('status', status)
                         })
                     })
                 })
