@@ -17,7 +17,6 @@
   "license": "ISC",
   "dependencies": {
     "@fdaciuk/ajax": "^2.1.5",
-    "@stellium/common": "github:stellium/common",
     "async": "^2.2.0",
     "babel-preset-es2015": "^6.24.0",
     "babelify": "^7.3.0",
