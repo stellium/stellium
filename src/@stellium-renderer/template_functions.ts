@@ -23,26 +23,26 @@ import {
     SystemSettingsSchema,
     WebsitePageModuleSchema
 } from '../@stellium-common'
-import ReadWriteStream = NodeJS.ReadWriteStream;
-import {toJSON} from "./lib/to_json";
+import ReadWriteStream = NodeJS.ReadWriteStream
+import {toJSON} from "./lib/to_json"
 
 
-let ModuleCachePrefix = 'module_cache_id-';
+let ModuleCachePrefix = 'module_cache_id-'
 
 
 const EnsureUrlValid = (...urls: string[]): string => {
 
     urls.forEach((_url, index, all) => {
-        all[index] = _url.replace(/^\/+|\/+$/g, '');
-    });
+        all[index] = _url.replace(/^\/+|\/+$/g, '')
+    })
 
-    return urls.join('/');
+    return urls.join('/')
 };
 
 
 export interface ModuleCompilerConfig {
-    unique?: boolean;
-    isSection?: boolean;
+    unique?: boolean
+    isSection?: boolean
 }
 
 
@@ -60,36 +60,36 @@ export class TemplateFunctions {
 
 
     get BASE_URL(): string {
-        return this.env.base_url;
+        return this.env.base_url
     }
 
 
-    get reservedPageKeys() {
-        return ReservedPageKeys;
+    get ReservedPageKeys() {
+        return ReservedPageKeys
     }
 
 
-    URLTranslator;
+    URLTranslator
 
 
     internalURL(urlKey: ReservedPageKeys) {
-        return this.URLTranslator(urlKey);
+        return this.URLTranslator(urlKey)
     }
 
 
     sortArrayBy(key: string = "order") {
         return (a, b) => {
             if (a[key] < b[key])
-                return -1;
+                return -1
             if (a[key] > b[key])
-                return 1;
-            return 0;
+                return 1
+            return 0
         }
     }
 
 
     /** Currently active website language / locale, e.g `en`, `id` etc. */
-    currentLanguage: string;
+    currentLanguage: string
 
 
     /** System's default website language / locale, e.g `en`, `id` etc. */
@@ -125,44 +125,44 @@ export class TemplateFunctions {
 
 
     get __URL__(): string {
-        return this.__request.originalUrl;
+        return this.__request.originalUrl
     }
 
 
     get lang(): string {
-        return this.currentLanguage;
+        return this.currentLanguage
     }
 
 
     translateUrl(url: { [code: string]: string }): string {
 
         let translatedUrl = '',
-            isOnDefaultLanguage = this.currentLanguage === this.defaultLanguage;
+            isOnDefaultLanguage = this.currentLanguage === this.defaultLanguage
 
         if (isOnDefaultLanguage) {
 
-            translatedUrl = url[this.currentLanguage];
+            translatedUrl = url[this.currentLanguage]
         } else {
 
-            translatedUrl = EnsureUrlValid(this.currentLanguage, url[this.currentLanguage]);
+            translatedUrl = EnsureUrlValid(this.currentLanguage, url[this.currentLanguage])
         }
 
-        return translatedUrl;
+        return translatedUrl
     }
 
 
     switchLanguage(lang: string): string {
 
-        let url = '',
-            currentUrl = this.__URL__;
+        let url = ''
+        let currentUrl = this.__URL__
 
         if (lang === this.defaultLanguage) {
-            url = currentUrl;
+            url = currentUrl
         } else {
-            url = EnsureUrlValid(lang, currentUrl);
+            url = EnsureUrlValid(lang, currentUrl)
         }
 
-        return url;
+        return url
     }
 
 
@@ -185,7 +185,7 @@ export class TemplateFunctions {
      */
     get isHomePage(): boolean {
 
-        return true;
+        return true
         // return this.app.url === '/home';
     }
 
@@ -198,15 +198,15 @@ export class TemplateFunctions {
 
         // some-file-in-media-path.jpg -> base-domain.com/media/some-file-in-media-path.jpg
         if (source === 'media') {
-            return 'media/' + encodeURIComponent(url);
+            return 'media/' + encodeURIComponent(url)
         }
 
         // http://some-domain.com/some-image.jpg
         if (source === 'external') {
-            return url;
+            return url
         }
 
-        else return url;
+        else return url
     }
 
 
@@ -228,9 +228,9 @@ export class TemplateFunctions {
 
     getModulePath(path: string): string {
 
-        let [, templateFile] = path.split('/');
+        let [, templateFile] = path.split('/')
 
-        return 'modules/' + path + '/' + templateFile + '.section';
+        return 'modules/' + path + '/' + templateFile + '.section'
     }
 
 
@@ -284,7 +284,9 @@ export class TemplateFunctions {
 
         return {
             // Create links
-            Link: (...args) => this._stelliumLinkCompiler(...args)
+            // although annoying and obscure, we need to deconstruct the parameters
+            // to ignore tslint's complaints about parameters not matching
+            Link: (...args: any[]) => this._stelliumLinkCompiler(args[0], args[1], args[2])
         }
     }
 
