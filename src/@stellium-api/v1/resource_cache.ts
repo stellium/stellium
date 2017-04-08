@@ -41,7 +41,7 @@ export const CreateCacheKeyFromRequest = (req: Request, userUnique: boolean = tr
 }
 
 
-export const ClearCacheValueByRequest = (req: Request) => {
+export const ClearCacheValueByRequest = (req: Request, modelNames?: string[]) => {
 
     const cacheKey = CreateCacheKeyFromRequest(req)
 
@@ -56,6 +56,14 @@ export const ClearCacheValueByRequest = (req: Request) => {
     redisClient.keys(`${r}_${c}_${group}_${model}*`, (err, keys) => {
         keys.forEach(_key => redisClient.del(_key))
     })
+
+    if (modelNames) {
+        modelNames.forEach(_name => {
+            redisClient.keys(`*${_name}*`, (err, keys) => {
+                keys.forEach(_key => redisClient.del(_key))
+            })
+        })
+    }
 }
 
 

@@ -410,7 +410,7 @@ UsersRouter.delete('/:userId', (req, res) => {
             })
 
 
-            if (req.query.notify) {
+            if (req.query.notify && req.query.notify === 'true') {
                 // notify, note, confirm_email
                 // mail user with req.query.note
 

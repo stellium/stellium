@@ -58,6 +58,6 @@ SystemSettingsRouter.put('/', (req, res) => {
 
         res.send({message: 'Settings have been saved successfully'})
 
-        ClearCacheValueByRequest(req)
+        ClearCacheValueByRequest(req, ['website'])
     })
 })
