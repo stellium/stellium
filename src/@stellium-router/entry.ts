@@ -6,6 +6,7 @@ import {DynamicRenderer} from "../@stellium-renderer";
 import {AjaxController} from "./controllers/ajax/ajax_controller";
 import {SystemSettingsMiddleware} from "./middlewares/system_settings";
 import {AnalyticsMiddleware} from "./analytics/middleware";
+import {CacheKeys} from '../@stellium-common/keys/cache_keys'
 
 
 const ignoreMiddleware = (req, res, next) => {
@@ -91,6 +92,7 @@ export class ApplicationRouter {
          * @time - 7:31 PM
          */
 
+        this.app.set(CacheKeys.IFrameMode, false)
 
         this.app.use(DynamicRenderer)
     }

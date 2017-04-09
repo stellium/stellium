@@ -79,7 +79,7 @@
         "key": "hot_page_reload",
         "value": true,
         "type": "boolean",
-        "description": "Super boost your visitor's experience by serving your website pages even faster. Uses Stellium's sophisticated caching and rendering mechanism to serve pages in near real-time, no page reloads!",
+        "description": "Turbo charge your visitor's experience by serving your website pages even faster. Uses Stellium's sophisticated caching and rendering mechanism to serve pages in near real-time, no page reloads!",
         "allowed_roles": [
             1,
             5

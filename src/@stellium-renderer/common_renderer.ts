@@ -53,7 +53,9 @@ export const CommonRenderer = (req: Request,
     const systemSettings = req.app.get(CacheKeys.SettingsKey)
 
 
-    const iFrameMode = req.app.get('iframe')
+    const iFrameMode = req.app.get(CacheKeys.IFrameMode)
+
+    console.log('iFrameMode', iFrameMode)
 
 
     pageData['iFrameMode'] = iFrameMode
@@ -185,7 +187,7 @@ export const CommonRenderer = (req: Request,
 
                     res.send(hotContentMeta)
 
-                    cachePageData(req, JSON.stringify(hotContentMeta))
+                    if (!iFrameMode) cachePageData(req, JSON.stringify(hotContentMeta))
 
                     return
                 }
@@ -234,7 +236,7 @@ export const CommonRenderer = (req: Request,
 
             // Save the minified HTML string of the rendered template into memory by using the language and url key
             // as the memory key address, in DEVELOPMENT, we bypass this step
-            if (pageData.page.cache && !DEVELOPMENT) cachePageData(req, html)
+            if (pageData.page.cache && !DEVELOPMENT && !iFrameMode) cachePageData(req, html)
         })
     })
 }

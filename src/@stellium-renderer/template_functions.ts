@@ -261,11 +261,13 @@ export class TemplateFunctions {
                                   link: { type: string, url: string },
                                   attributes: any = {}): string {
 
-        const basicLinkTemplate = `<a href="${this.getEmbeddedLink(link)}">${text}</a>`
+        const basicLinkTemplate = `<a href="${this.getEmbeddedLink(link)}"></a>`
 
         const $ = cheerio.load(basicLinkTemplate)
 
         const linkElement = $('a')
+
+        linkElement.html(text)
 
         for (let i in attributes) {
             if (attributes.hasOwnProperty(i)) {
@@ -567,10 +569,10 @@ export class TemplateFunctions {
             moduleElement.addClass('mt-stellium-module')
 
             // Assign stellium module order number for Stellium medium sorting
-            moduleElement.attr('mt-stellium-module-order', ++this._moduleOrder)
+            moduleElement.addClass('mt-stellium-module-order')
 
             // Assign stellium module order number for Stellium medium sorting
-            moduleElement.addClass('mt-stellium-module-order')
+            allElements.attr('mt-stellium-module-order', ++this._moduleOrder)
         }
 
         allElements.attr(this._moduleComponentId, '')
