@@ -19,6 +19,7 @@ import {CommonPageData} from './common_interface'
 import {TemplateFunctions} from './template_functions'
 import {toJSON} from "./lib/to_json";
 import {SettingsKeys} from "../@stellium-common/keys/settings";
+import {ENV} from '../@stellium-common/development/environment_variable'
 
 const redisClient = redis.createClient()
 
@@ -30,11 +31,23 @@ const cachePageData = (req: Request, html) => {
 
     if (req.query.hot) cacheKey = cacheKey + '_hot'
 
-    // Save compiled HTML to memory
-    redisClient.set(
-        cacheKey,
-        minifyTemplate(html)
-    )
+    redisClient.select(ENV.redis_index, err => {
+
+        if (err) {
+            Monolog({
+                message: 'Unable to select redis database at index ' + ENV.redis_index,
+                error: err,
+                severity: 'severe'
+            })
+            return
+        }
+
+        // Save compiled HTML to memory
+        redisClient.set(
+            cacheKey,
+            minifyTemplate(html)
+        )
+    })
 }
 
 

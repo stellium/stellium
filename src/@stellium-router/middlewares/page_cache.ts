@@ -4,6 +4,8 @@ import {
     translateCacheUrl,
     CacheKeys
 } from '../../@stellium-common'
+import {ENV} from '../../@stellium-common/development/environment_variable'
+import {Monolog} from '../../@stellium-common/monolog/monolog'
 const redisClient = redis.createClient()
 
 
@@ -19,23 +21,36 @@ export const PageCacheMiddleware = (req, res, next) => {
     // append `_hot` keyword for hot reloaded content
     if (req.query.hot) cachedKey += '_hot'
 
-    redisClient.get(cachedKey, (err, cachedPageMeta) => {
+    redisClient.select(ENV.redis_index, err => {
 
-        if (!cachedPageMeta) {
-            next()
+        if (err) {
+            Monolog({
+                message: 'Unable to select redis database at index ' + ENV.redis_index,
+                error: err,
+                severity: 'severe'
+            })
+            res.status(500).send('Internal Server Error')
             return
         }
 
-        const analyticsVisitor = req.app.get(CacheKeys.UAVisitor)
+        redisClient.get(cachedKey, (err, cachedPageMeta) => {
 
-        analyticsVisitor && analyticsVisitor.page(req.originalUrl).send()
+            if (!cachedPageMeta) {
+                next()
+                return
+            }
 
-        if (req.query.hot) {
-            res.send(JSON.parse(cachedPageMeta))
-            return
-        }
+            const analyticsVisitor = req.app.get(CacheKeys.UAVisitor)
 
-        // Page exists in cache, return cached version
-        res.send(cachedPageMeta)
+            analyticsVisitor && analyticsVisitor.page(req.originalUrl).send()
+
+            if (req.query.hot) {
+                res.send(JSON.parse(cachedPageMeta))
+                return
+            }
+
+            // Page exists in cache, return cached version
+            res.send(cachedPageMeta)
+        })
     })
 }

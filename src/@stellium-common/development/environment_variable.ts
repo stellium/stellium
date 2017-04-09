@@ -17,17 +17,10 @@ export interface AppEnvironment {
     database_auth: string,
     database_name: string,
     secret: string,
-    mailer: {
-        email: string,
-        secret: string
-    },
-    mandrill: {
-        host: string,
-        port: number,
-        user_name: string,
-        api_key: string,
-    }
+    redis_index: number,
 }
 
 
-export const ENV: AppEnvironment = require(path.resolve(StelliumRootPath, 'env'));
+console.log('path.resolve(StelliumRootPath, \'env\')', path.resolve(StelliumRootPath, 'env'))
+
+export const ENV: AppEnvironment = require(path.resolve(StelliumRootPath, 'env'))

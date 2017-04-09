@@ -1,3 +1,5 @@
+import * as redis from 'redis'
+import * as colors from 'colors'
 import * as rimraf from 'rimraf'
 import * as logger from 'morgan'
 import * as express from 'express'
@@ -11,11 +13,13 @@ import {ENV, CachePath} from '../@stellium-common'
 import {ApplicationRouter} from '../@stellium-router'
 import {ApiRouter} from '../@stellium-api'
 import {ErrorsHandler} from './errors_handler'
-import {ServerConfig} from './config.interface'
-import {compileScripts} from "../@stellium-compiler";
+import {compileScripts} from '../@stellium-compiler';
 
 
 const RedisStore = connectRedis(session)
+
+
+const redisClient = redis.createClient({db: '' + ENV.redis_index})
 
 export class ApplicationServer {
 
@@ -29,7 +33,7 @@ export class ApplicationServer {
      * @method bootstrap
      * @static
      */
-    public static bootstrap(config?: ServerConfig): Promise<ApplicationServer> {
+    public static bootstrap(): Promise<ApplicationServer> {
 
         return new Promise((resolve, reject) => {
 
@@ -42,18 +46,21 @@ export class ApplicationServer {
                         return
                     }
 
-                    resolve(new ApplicationServer(config))
+                    console.log(colors.yellow('Flushing redis db for ' + ENV.redis_index))
+
+                    redisClient.flushdb()
+
+                    resolve(new ApplicationServer())
                 })
             })
         })
     }
 
 
-    constructor(config?: ServerConfig) {
+    constructor() {
 
         (<any>mongoose).Promise = global.Promise
-
-        mongoose.connect('mongodb://localhost/' + config.database)
+        mongoose.connect('mongodb://localhost/' + ENV.database_name)
 
         this.configure()
 

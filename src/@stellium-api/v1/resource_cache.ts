@@ -1,6 +1,7 @@
 import * as redis from 'redis'
 import {Monolog} from '../../@stellium-common'
 import {NextFunction, Request, RequestHandler, Response} from 'express'
+import {ENV} from '../../@stellium-common/development/environment_variable'
 
 
 const redisClient = redis.createClient()
@@ -8,7 +9,19 @@ const redisClient = redis.createClient()
 
 export const CacheQueryResult = (req: Request, data: any) => {
 
-    redisClient.set(CreateCacheKeyFromRequest(req), JSON.stringify(data))
+    redisClient.select(ENV.redis_index, err => {
+
+        if (err) {
+            Monolog({
+                message: 'Unable to select redis database at index ' + ENV.redis_index,
+                error: err,
+                severity: 'severe'
+            })
+            return
+        }
+
+        redisClient.set(CreateCacheKeyFromRequest(req), JSON.stringify(data))
+    })
 }
 
 
@@ -16,7 +29,22 @@ export const GetQueryDataFromCache = (req: Request, cb: (err: any, cachedData?: 
 
     const cacheKey = CreateCacheKeyFromRequest(req)
 
-    redisClient.get(cacheKey, (err, cachedData) => cb(err, cachedData))
+    redisClient.select(ENV.redis_index, err => {
+
+        console.log('ENV.redis_index', ENV.redis_index)
+
+        if (err) {
+            Monolog({
+                message: 'Unable to select redis database at index ' + ENV.redis_index,
+                error: err,
+                severity: 'severe'
+            })
+            cb(err)
+            return
+        }
+
+        redisClient.get(cacheKey, (err, cachedData) => cb(err, cachedData))
+    })
 }
 
 
@@ -51,19 +79,31 @@ export const ClearCacheValueByRequest = (req: Request, modelNames?: string[]) =>
     // which will target a collection or a single document cached in redis
     const [r,c,group, model] = cacheKey.split('_')
 
-    // Deletes all index and single collection cache
-    // from redis as data has been changed
-    redisClient.keys(`${r}_${c}_${group}_${model}*`, (err, keys) => {
-        keys.forEach(_key => redisClient.del(_key))
-    })
+    redisClient.select(ENV.redis_index, err => {
 
-    if (modelNames) {
-        modelNames.forEach(_name => {
-            redisClient.keys(`*${_name}*`, (err, keys) => {
-                keys.forEach(_key => redisClient.del(_key))
+        if (err) {
+            Monolog({
+                message: 'Unable to select redis database at index ' + ENV.redis_index,
+                error: err,
+                severity: 'severe'
             })
+            return
+        }
+
+        // Deletes all index and single collection cache
+        // from redis as data has been changed
+        redisClient.keys(`${r}_${c}_${group}_${model}*`, (err, keys) => {
+            keys.forEach(_key => redisClient.del(_key))
         })
-    }
+
+        if (modelNames) {
+            modelNames.forEach(_name => {
+                redisClient.keys(`*${_name}*`, (err, keys) => {
+                    keys.forEach(_key => redisClient.del(_key))
+                })
+            })
+        }
+    })
 }
 
 

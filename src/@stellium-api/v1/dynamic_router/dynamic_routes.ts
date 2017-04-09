@@ -8,6 +8,8 @@ import {
     SystemSettingsModel
 } from '../../../@stellium-database'
 import {CacheQueryResult} from "../resource_cache";
+import {ENV} from '../../../@stellium-common/development/environment_variable'
+import {Monolog} from '../../../@stellium-common/monolog/monolog'
 
 
 const redisClient = redis.createClient()
@@ -64,12 +66,24 @@ export interface DynamicRouteSchema {
 
 const deletePageCache = (model) => {
 
-    // Scans all keys for cached page documents
-    redisClient.keys('page_cache_address*', (err, keys) => {
-        // Loops through the matching keys and delete one-by-one
-        // this is only necessary when creating or editing pages to make sure
-        // everything is in sync
-        keys.forEach(_key => redisClient.del(_key))
+    redisClient.select(ENV.redis_index, err => {
+
+        if (err) {
+            Monolog({
+                message: 'Unable to select redis database at index ' + ENV.redis_index,
+                error: err,
+                severity: 'severe'
+            })
+            return
+        }
+
+        // Scans all keys for cached page documents
+        redisClient.keys('page_cache_address*', (err, keys) => {
+            // Loops through the matching keys and delete one-by-one
+            // this is only necessary when creating or editing pages to make sure
+            // everything is in sync
+            keys.forEach(_key => redisClient.del(_key))
+        })
     })
 }
 

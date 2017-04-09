@@ -1,65 +1,79 @@
 import * as redis from 'redis'
 import {SystemLanguageModel} from '../../../@stellium-database'
 import {Monolog, LanguageKeys} from '../../../@stellium-common'
+import {ENV} from '../../../@stellium-common/development/environment_variable'
 
 const redisClient = redis.createClient()
 
 
 export const DefineDefaultLanguage = (callback: (error: any, defaultLanguage?: string, availableLanguages?: string[]) => void): void => {
 
-    redisClient.get(LanguageKeys.AvailableLanguages, (err, availableLanguages) => {
+    redisClient.select(ENV.redis_index, (err) => {
 
-        let _availableLanguage: string[] = JSON.parse(availableLanguages)
+        if (err) {
+            Monolog({
+                message: 'Unable to select redis database at index ' + ENV.redis_index,
+                error: err,
+                severity: 'severe'
+            })
+            callback(err)
+            return
+        }
 
-        redisClient.get(LanguageKeys.DefaultLanguage, (err, _defaultLanguage) => {
+        redisClient.get(LanguageKeys.AvailableLanguages, (err, availableLanguages) => {
 
-            if (_defaultLanguage && _availableLanguage) {
+            let _availableLanguage: string[] = JSON.parse(availableLanguages)
 
-                // If default and available languages are already stored in memory, do nothing and return callback
-                callback(null, _defaultLanguage, _availableLanguage)
+            redisClient.get(LanguageKeys.DefaultLanguage, (err, _defaultLanguage) => {
 
-                return
-            }
+                if (_defaultLanguage && _availableLanguage) {
 
-            // Index all languages from database
-            SystemLanguageModel.find({}, (err, languages) => {
+                    // If default and available languages are already stored in memory, do nothing and return callback
+                    callback(null, _defaultLanguage, _availableLanguage)
 
-                if (err) {
-
-                    callback(err);
-
-                    Monolog({
-                        message: 'Failed to look up for a system language',
-                        error: err
-                    })
                     return
                 }
 
-                let _defaultLanguageCode = 'en'
-                let availableLanguages = ['en']
+                // Index all languages from database
+                SystemLanguageModel.find({}, (err, languages) => {
 
-                if (languages && languages.length) {
+                    if (err) {
 
-                    availableLanguages = languages.map(_lang => _lang.code)
+                        callback(err);
 
-                    // Filter languages to find the default one
-                    _defaultLanguageCode = languages.find(_lang => _lang.default).code
+                        Monolog({
+                            message: 'Failed to look up for a system language',
+                            error: err
+                        })
+                        return
+                    }
 
-                } else {
-                    Monolog({
-                        message: 'No languages in DB found falling back to default `en`',
-                        error: err
-                    })
-                }
+                    let _defaultLanguageCode = 'en'
+                    let availableLanguages = ['en']
 
-                // Store all available languages on the system in memory for faster retrieval
-                redisClient.set(LanguageKeys.AvailableLanguages, JSON.stringify(availableLanguages))
+                    if (languages && languages.length) {
 
-                // Store default language code in memory
-                redisClient.set(LanguageKeys.DefaultLanguage, _defaultLanguageCode)
+                        availableLanguages = languages.map(_lang => _lang.code)
+
+                        // Filter languages to find the default one
+                        _defaultLanguageCode = languages.find(_lang => _lang.default).code
+
+                    } else {
+                        Monolog({
+                            message: 'No languages in DB found falling back to default `en`',
+                            error: err
+                        })
+                    }
+
+                    // Store all available languages on the system in memory for faster retrieval
+                    redisClient.set(LanguageKeys.AvailableLanguages, JSON.stringify(availableLanguages))
+
+                    // Store default language code in memory
+                    redisClient.set(LanguageKeys.DefaultLanguage, _defaultLanguageCode)
 
 
-                callback(err, _defaultLanguageCode, availableLanguages)
+                    callback(err, _defaultLanguageCode, availableLanguages)
+                })
             })
         })
     })

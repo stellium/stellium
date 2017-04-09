@@ -1,8 +1,10 @@
 import * as redis from 'redis'
 import * as express from 'express';
-import {LanguageKeys} from "../../../@stellium-common";
+import {LanguageKeys} from '../../../@stellium-common';
+import {Monolog} from '../../../@stellium-common/monolog/monolog'
+import {ENV} from '../../../@stellium-common/development/environment_variable'
 
-const redisClient = redis.createClient();
+const redisClient = redis.createClient()
 
 
 export const DefineCurrentLanguage = (req: express.Request, callback: (err: any, language?: string) => void): void => {
@@ -18,41 +20,56 @@ export const DefineCurrentLanguage = (req: express.Request, callback: (err: any,
 
     let languageToSet
 
-    redisClient.get(LanguageKeys.DefaultLanguage, (err, defaultLanguage) => {
+    redisClient.select(ENV.redis_index, err => {
 
-        redisClient.get(LanguageKeys.AvailableLanguages, (err, availLanguagesString) => {
+        if (err) {
+            Monolog({
+                message: 'Unable to select redis database at index ' + ENV.redis_index,
+                error: err,
+                severity: 'severe'
+            })
 
-            let availableLanguages: string[] = JSON.parse(availLanguagesString)
+            callback(err)
 
-            // Check if the language code really is a language
-            // en/some/url => OK, english
-            // xx/some/url => NO, maybe it's just a regular URL
-            if (availableLanguages && availableLanguages.includes(lang)) {
+            return
+        }
 
-                // Language selector in URL matches one of the available languages
-                // in the db, so it must be a language code
-                // e.g en/some/url => `en`
-                languageToSet = lang
+        redisClient.get(LanguageKeys.DefaultLanguage, (err, defaultLanguage) => {
 
-                req.url = (req.url + '/').replace('/' + lang, '')
+            redisClient.get(LanguageKeys.AvailableLanguages, (err, availLanguagesString) => {
 
-            } else {
+                let availableLanguages: string[] = JSON.parse(availLanguagesString)
 
-                // It is not a language, set the current language to the default language
-                // xx/some/url => language is set to default language as `xx` does not match
-                // any languages in the DB
-                languageToSet = defaultLanguage
-            }
+                // Check if the language code really is a language
+                // en/some/url => OK, english
+                // xx/some/url => NO, maybe it's just a regular URL
+                if (availableLanguages && availableLanguages.includes(lang)) {
 
-            /**
-             * TODO(perf): Can we not just store it in the request? Is it faster than using redis?
-             * @date - 26 Mar 2017
-             * @time - 1:31 PM
-             */
-            // Store current language in memory
-            redisClient.set(LanguageKeys.CurrentLanguage, languageToSet)
+                    // Language selector in URL matches one of the available languages
+                    // in the db, so it must be a language code
+                    // e.g en/some/url => `en`
+                    languageToSet = lang
 
-            callback(null, languageToSet)
+                    req.url = (req.url + '/').replace('/' + lang, '')
+
+                } else {
+
+                    // It is not a language, set the current language to the default language
+                    // xx/some/url => language is set to default language as `xx` does not match
+                    // any languages in the DB
+                    languageToSet = defaultLanguage
+                }
+
+                /**
+                 * TODO(perf): Can we not just store it in the request? Is it faster than using redis?
+                 * @date - 26 Mar 2017
+                 * @time - 1:31 PM
+                 */
+                // Store current language in memory
+                redisClient.set(LanguageKeys.CurrentLanguage, languageToSet)
+
+                callback(null, languageToSet)
+            })
         })
     })
 }

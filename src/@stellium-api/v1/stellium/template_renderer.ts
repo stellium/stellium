@@ -43,38 +43,51 @@ StelliumRouter.get('/modules-index', (req, res) => {
 
     let indexKey = 'stellium-modules-index'
 
-    redisClient.get(indexKey, (err, cachedModules) => {
+    redisClient.select(ENV.redis_index, err => {
 
         if (err) {
             Monolog({
-                message: 'Error while attempting to index modules',
-                error: err
+                message: 'Unable to select redis database at index ' + ENV.redis_index,
+                error: err,
+                severity: 'severe'
             })
-            res.sendStatus(500)
-        }
-
-        if (cachedModules) {
-            res.send(cachedModules)
+            res.status(500).send('Fatal error while attempting to select redis database by index')
             return
         }
 
-        async.waterfall([
-            scanComponentFiles,
-            mapComponentModules,
-        ], (err, modules) => {
+        redisClient.get(indexKey, (err, cachedModules) => {
 
             if (err) {
-                res.sendStatus(500)
                 Monolog({
-                    message: 'Error indexing modules to populate module picker',
+                    message: 'Error while attempting to index modules',
                     error: err
                 })
+                res.sendStatus(500)
+            }
+
+            if (cachedModules) {
+                res.send(cachedModules)
                 return
             }
-            res.send(modules)
 
-            // Cache scanned modules to redis for fast retrieval
-            redisClient.set(indexKey, JSON.stringify(modules))
+            async.waterfall([
+                scanComponentFiles,
+                mapComponentModules,
+            ], (err, modules) => {
+
+                if (err) {
+                    res.sendStatus(500)
+                    Monolog({
+                        message: 'Error indexing modules to populate module picker',
+                        error: err
+                    })
+                    return
+                }
+                res.send(modules)
+
+                // Cache scanned modules to redis for fast retrieval
+                redisClient.set(indexKey, JSON.stringify(modules))
+            })
         })
     })
 })
