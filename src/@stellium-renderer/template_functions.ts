@@ -115,7 +115,7 @@ export class TemplateFunctions {
 
     constructor(private req: Request) {
         this.__request = req
-        this.iFrameMode = req.app.get('iframe')
+        this.iFrameMode = req.app.get(CacheKeys.IFrameMode)
         this.projectSettings = req.app.get(CacheKeys.SettingsKey)
         this.currentLanguage = req.app.get(LanguageKeys.CurrentLanguage)
         this.defaultLanguage = req.app.get(LanguageKeys.DefaultLanguage)
