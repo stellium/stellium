@@ -29,9 +29,9 @@ const populateMetaDataAndSave = (user) => (postItem, cb): void => {
 
         postItem.content = [
             {
-                content: `<p>${postItem.meta}</p>`,
                 order: 1,
-                type: 'html'
+                content: `<p>${postItem.meta}</p>`,
+                type: 'text'
             }
         ]
     }

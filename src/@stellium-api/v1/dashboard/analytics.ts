@@ -4,7 +4,6 @@ import * as express from 'express'
 import * as google from 'googleapis'
 import {Router} from 'express'
 import {StoragePath, Monolog} from '../../../@stellium-common'
-import {SystemSettingsModel} from '../../../@stellium-database'
 import {CacheQueryResult} from "../resource_cache";
 import {getSettingsByKey} from "../../../@stellium-common/tools/extract_settings";
 import {CacheKeys} from "../../../@stellium-common/keys/cache_keys";
@@ -77,8 +76,8 @@ const getAnalyticsData = (viewId: string) => (input, cb: (err: any, data?: any) 
 
     const baseOptions = {
         auth: jwtClient,
-        ids: 'ga:132436173', // + viewId,
-        'start-date': '7daysAgo',
+        ids: `ga:${viewId}`,
+        'start-date': '30daysAgo',
         'end-date': 'today',
     }
 

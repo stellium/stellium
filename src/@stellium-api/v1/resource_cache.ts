@@ -31,8 +31,6 @@ export const GetQueryDataFromCache = (req: Request, cb: (err: any, cachedData?: 
 
     redisClient.select(ENV.redis_index, err => {
 
-        console.log('ENV.redis_index', ENV.redis_index)
-
         if (err) {
             Monolog({
                 message: 'Unable to select redis database at index ' + ENV.redis_index,

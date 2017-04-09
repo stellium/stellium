@@ -52,6 +52,7 @@ const Schema = new mongoose.Schema({
     type: {
         type: String
     },
+    settings_group: String,
     created_at: {
         type: Date,
         'default': Date.now

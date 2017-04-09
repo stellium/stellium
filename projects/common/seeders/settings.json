@@ -17,7 +17,8 @@
                 "color": "red",
                 "description": "Leaving this value blank will have decremental effects on your website's page analytics. Page views and other visitor activities will not be tracked."
             }
-        ]
+        ],
+        "settings_group": "analytics"
     },
     {
         "title": "SMTP Host",

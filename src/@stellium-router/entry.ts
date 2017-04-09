@@ -7,6 +7,7 @@ import {AjaxController} from "./controllers/ajax/ajax_controller";
 import {SystemSettingsMiddleware} from "./middlewares/system_settings";
 import {AnalyticsMiddleware} from "./analytics/middleware";
 import {CacheKeys} from '../@stellium-common/keys/cache_keys'
+import {OffersDetailController} from './offers/offers_controller'
 
 
 const ignoreMiddleware = (req, res, next) => {
@@ -75,6 +76,14 @@ export class ApplicationRouter {
 
         // Assign system languages to the current req.app instance
         this.app.use(MultiLanguageMiddleware)
+
+
+
+
+        this.app.get('/offers/:offerUrl', OffersDetailController)
+
+
+
 
 
         // Get default page URL and assign it to the current request.url address
