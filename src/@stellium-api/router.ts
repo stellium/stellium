@@ -3,10 +3,10 @@ import * as bodyParser from 'body-parser'
 import * as passport from 'passport'
 import {Application, Router} from 'express'
 import {V1Router} from './v1/router'
-import {AuthenticationRouter} from "./auth/authenticate";
-import {SystemUserModel} from "../@stellium-database";
-import {addStelliumHeaders} from "./_lib/cors_middleware";
-import {SystemSettingsMiddleware} from "../@stellium-router";
+import {AuthenticationRouter} from './auth/authenticate'
+import {SystemUserModel} from '../@stellium-database'
+import {addStelliumHeaders} from './_lib/cors_middleware'
+import {SystemSettingsMiddleware} from '../@stellium-router'
 const LocalStrategy = require('passport-local').Strategy
 
 

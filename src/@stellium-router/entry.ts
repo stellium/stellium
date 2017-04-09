@@ -2,11 +2,10 @@ import {PageCacheMiddleware} from './middlewares/page_cache'
 import {MultiLanguageMiddleware} from './middlewares/multi_language'
 import {DefaultPageMiddleware} from './middlewares/default_page'
 import {Application} from 'express'
-import {DynamicRenderer} from "../@stellium-renderer";
-import {AjaxController} from "./controllers/ajax/ajax_controller";
-import {SystemSettingsMiddleware} from "./middlewares/system_settings";
-import {AnalyticsMiddleware} from "./analytics/middleware";
-import {CacheKeys} from '../@stellium-common/keys/cache_keys'
+import {DynamicRenderer} from '../@stellium-renderer'
+import {AjaxController} from './controllers/ajax/ajax_controller'
+import {SystemSettingsMiddleware} from './middlewares/system_settings'
+import {AnalyticsMiddleware} from './analytics/middleware'
 import {OffersDetailController} from './offers/offers_controller'
 
 
@@ -35,6 +34,7 @@ export class ApplicationRouter {
 
         // Routes that should have been handled by NGINX directly
         const disallowedUrls = ['media', 'mt-users', 'c']
+
         // Bypass the nginx URLs to relieve express app from stress
         disallowedUrls.forEach(_url => this.app.use('/' + _url, ignoreMiddleware))
 
@@ -100,8 +100,6 @@ export class ApplicationRouter {
          * @date - 25 Mar 2017
          * @time - 7:31 PM
          */
-
-        this.app.set(CacheKeys.IFrameMode, false)
 
         this.app.use(DynamicRenderer)
     }

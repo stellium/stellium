@@ -1,7 +1,6 @@
 import * as redis from 'redis'
 import {SystemLanguageModel} from '../../../@stellium-database'
-import {Monolog, LanguageKeys} from '../../../@stellium-common'
-import {ENV} from '../../../@stellium-common/development/environment_variable'
+import {Monolog, LanguageKeys, ENV} from '../../../@stellium-common'
 
 const redisClient = redis.createClient()
 

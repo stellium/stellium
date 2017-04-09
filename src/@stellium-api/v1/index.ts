@@ -1,1 +1,1 @@
-export {V1Router} from './router';
+export {V1Router} from './router'

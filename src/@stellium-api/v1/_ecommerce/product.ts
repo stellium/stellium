@@ -1,6 +1,6 @@
-import * as express from 'express';
-import {ProductModel} from "../../../../../Database/Models/Ecommerce/Product";
-import {Monolog} from "../../../../../Helpers/Monolog/index";
+import * as express from 'express'
+import {ProductModel} from '../../../../../Database/Models/Ecommerce/Product'
+import {Monolog} from '../../../../../Helpers/Monolog/index'
 
 
 export const EcommerceProductsRouter = express.Router();

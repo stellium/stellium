@@ -1,4 +1,4 @@
-import {SystemSettingsSchema} from "../schemas/system_settings";
+import {SystemSettingsSchema} from '../schemas/system_settings'
 
 export function getSettingsByKey(key: string, settings: SystemSettingsSchema[], returnValue = false): SystemSettingsSchema | any {
 

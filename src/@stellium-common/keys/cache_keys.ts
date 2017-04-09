@@ -6,5 +6,8 @@ export const CacheKeys = {
     UAVisitor: '__mt_ua_visitor',
 
 
-    IFrameMode: '__mt_iframe_mode'
+    IFrameMode: '__mt_iframe_mode',
+
+
+    HotReload: '__mt_hot_reload_enabled'
 }

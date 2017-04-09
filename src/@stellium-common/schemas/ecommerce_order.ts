@@ -1,4 +1,4 @@
-import {EcommerceProductVariantSchema} from "./ecommerce_product_variant";
+import {EcommerceProductVariantSchema} from './ecommerce_product_variant'
 
 
 export interface EcommerceShippingInfoSchema {

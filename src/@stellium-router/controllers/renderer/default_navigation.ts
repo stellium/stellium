@@ -1,9 +1,9 @@
 import {
     WebsiteNavigationGroupModel,
     readSeederFile
-} from "../../../@stellium-database";
-import {ENV} from "../../../@stellium-common";
-import {WebsiteNavigationGroupSchema} from "../../../@stellium-common";
+} from '../../../@stellium-database'
+import {ENV} from '../../../@stellium-common'
+import {WebsiteNavigationGroupSchema} from '../../../@stellium-common'
 
 
 export const getDefaultNavigationItems = (cb: (err: any, items?: WebsiteNavigationGroupSchema) => void): void => {

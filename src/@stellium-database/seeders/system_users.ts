@@ -1,8 +1,8 @@
-import * as async from 'async';
-import {SeedConsole, readSeederFile} from "./_lib";
-import {SystemUserModel} from "../models/system_user";
-import {SystemUserGroupModel} from "../models/system_user_group";
-import {SystemUserSchema} from "../../@stellium-common";
+import * as async from 'async'
+import {SeedConsole, readSeederFile} from './_lib'
+import {SystemUserModel} from '../models/system_user'
+import {SystemUserGroupModel} from '../models/system_user_group'
+import {SystemUserSchema} from '../../@stellium-common'
 
 
 const removeData = (cb: (err: any) => void): void => {

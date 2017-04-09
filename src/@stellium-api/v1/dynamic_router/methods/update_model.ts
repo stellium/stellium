@@ -1,15 +1,15 @@
 import {
     Model,
     Document
-} from "mongoose";
+} from 'mongoose'
 import {
     Request,
     RequestHandler,
     Response
-} from "express";
-import {Monolog} from "../../../../@stellium-common";
-import {ClearCacheValueByRequest} from "../../resource_cache";
-import {QueryConfig} from "../route_compiler";
+} from 'express'
+import {Monolog} from '../../../../@stellium-common'
+import {ClearCacheValueByRequest} from '../../resource_cache'
+import {QueryConfig} from '../route_compiler'
 
 
 export function updateModelDocument(model: Model<Document>,

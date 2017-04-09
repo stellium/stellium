@@ -4,10 +4,10 @@ import * as express from 'express'
 import * as google from 'googleapis'
 import {Router} from 'express'
 import {StoragePath, Monolog} from '../../../@stellium-common'
-import {CacheQueryResult} from "../resource_cache";
-import {getSettingsByKey} from "../../../@stellium-common/tools/extract_settings";
-import {CacheKeys} from "../../../@stellium-common/keys/cache_keys";
-import {SettingsKeys} from "../../../@stellium-common/keys/settings";
+import {CacheQueryResult} from '../resource_cache'
+import {getSettingsByKey} from '../../../@stellium-common'
+import {CacheKeys} from '../../../@stellium-common'
+import {SettingsKeys} from '../../../@stellium-common'
 
 const analytics = google.analytics('v3')
 

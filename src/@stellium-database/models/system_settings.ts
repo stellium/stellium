@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose'
-import {Document, Model} from "mongoose";
-import {SystemSettingsSchema} from "../../@stellium-common";
+import {Document, Model} from 'mongoose'
+import {SystemSettingsSchema} from '../../@stellium-common'
 
 
 export interface MongooseSystemSettingsDocument extends Document, SystemSettingsSchema {

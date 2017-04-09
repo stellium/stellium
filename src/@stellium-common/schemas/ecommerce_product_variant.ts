@@ -1,5 +1,5 @@
-import {MediaFileSchema} from "./media_file";
-import {EcommerceProductSchema} from "./ecommerce_product";
+import {MediaFileSchema} from './media_file'
+import {EcommerceProductSchema} from './ecommerce_product'
 
 
 export interface EcommerceProductVariantSchema {

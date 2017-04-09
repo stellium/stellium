@@ -1,5 +1,5 @@
-import * as mongoose from 'mongoose';
-import {SystemUserGroupSchema} from "../../@stellium-common";
+import * as mongoose from 'mongoose'
+import {SystemUserGroupSchema} from '../../@stellium-common'
 
 
 export interface MongooseSystemUserGroupSchema extends SystemUserGroupSchema, mongoose.Document {

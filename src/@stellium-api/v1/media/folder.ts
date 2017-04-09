@@ -1,9 +1,9 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import * as mkdirp from 'mkdirp';
-import * as express from 'express';
-import {MediaPath, Monolog} from "../../../@stellium-common";
-import {Router} from "express";
+import * as fs from 'fs'
+import * as path from 'path'
+import * as mkdirp from 'mkdirp'
+import * as express from 'express'
+import {MediaPath, Monolog} from '../../../@stellium-common'
+import {Router} from 'express'
 
 
 export const FolderRouter: Router = express();

@@ -1,8 +1,8 @@
-import * as async from 'async';
-import * as moment from 'moment';
-import {SeedConsole, FindOneUser, readSeederFile} from "./_lib";
-import {WebsitePageModel} from "../models/website_page";
-import {WebsiteNavigationGroupModel} from "../models/website_navigation_group";
+import * as async from 'async'
+import * as moment from 'moment'
+import {SeedConsole, FindOneUser, readSeederFile} from './_lib'
+import {WebsitePageModel} from '../models/website_page'
+import {WebsiteNavigationGroupModel} from '../models/website_navigation_group'
 
 
 const removePages = (cb: (err: any) => void): void => {

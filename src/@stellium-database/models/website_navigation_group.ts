@@ -1,6 +1,6 @@
-import * as mongoose from 'mongoose';
+import * as mongoose from 'mongoose'
 import "./website_navigation";
-import {WebsiteNavigationGroupSchema} from "../../@stellium-common";
+import {WebsiteNavigationGroupSchema} from '../../@stellium-common'
 
 
 export interface MongooseWebsiteNavigationGroupSchema extends WebsiteNavigationGroupSchema, mongoose.Document {

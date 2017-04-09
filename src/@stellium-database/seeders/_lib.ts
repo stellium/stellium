@@ -1,9 +1,9 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import * as colors from 'colors/safe';
-import {SystemUserModel} from "../models/system_user";
-import {RootPath} from "../../@stellium-common";
-import {SystemUserSchema} from "../../@stellium-common";
+import * as fs from 'fs'
+import * as path from 'path'
+import * as colors from 'colors/safe'
+import {SystemUserModel} from '../models/system_user'
+import {RootPath} from '../../@stellium-common'
+import {SystemUserSchema} from '../../@stellium-common'
 
 const fillRemaining = (remains: number): string => {
     let str = '';

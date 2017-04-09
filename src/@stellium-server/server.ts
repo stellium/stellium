@@ -13,7 +13,8 @@ import {ENV, CachePath} from '../@stellium-common'
 import {ApplicationRouter} from '../@stellium-router'
 import {ApiRouter} from '../@stellium-api'
 import {ErrorsHandler} from './errors_handler'
-import {compileScripts} from '../@stellium-compiler';
+import {compileScripts} from '../@stellium-compiler'
+import {CacheKeys} from '../@stellium-common'
 
 
 const RedisStore = connectRedis(session)
@@ -76,12 +77,16 @@ export class ApplicationServer {
 
     private _attachRoutes() {
 
-        const app = this.app
-
         // Use logger in development mode
-        if (DEVELOPMENT) app.use(logger('dev'))
+        if (DEVELOPMENT) this.app.use(logger('dev'))
 
-        new ApiRouter(app)
+        new ApiRouter(this.app)
+
+        // Disable iFrame mode outside of the API router
+        this.app.use((req, res, next) => {
+            req.app.set(CacheKeys.IFrameMode, false)
+            next()
+        })
 
         let _session = {
             secret: ENV.secret,
@@ -93,16 +98,16 @@ export class ApplicationServer {
 
         if (!DEVELOPMENT) {
             // required by node session
-            app.set('trust proxy', 1) // trust first proxy
+            this.app.set('trust proxy', 1) // trust first proxy
             _session.cookie['secure'] = true // serve secure cookies
         }
 
-        app.use(session(_session))
+        this.app.use(session(_session))
 
         // Template resource routes for dynamic pages
-        new ApplicationRouter(app)
+        new ApplicationRouter(this.app)
 
         // Error handler for 404 and 500
-        new ErrorsHandler(app)
+        new ErrorsHandler(this.app)
     }
 }

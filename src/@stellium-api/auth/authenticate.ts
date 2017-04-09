@@ -4,7 +4,7 @@ import * as jwt from 'jsonwebtoken'
 import * as ejwt from 'express-jwt'
 import {Router} from 'express'
 import {SystemUserModel, MongooseSystemUserDocument} from '../../@stellium-database'
-import {CleanUser} from "./_lib/clean_user";
+import {CleanUser} from './_lib/clean_user'
 import {ENV, Monolog} from '../../@stellium-common'
 
 
@@ -112,7 +112,14 @@ AuthenticationRouter.delete('/', (req, res) => {
         message: 'Logged out'
     })
 
-    SystemUserModel.findById(req.user._id, (err, user) => {
+    SystemUserModel.findOne({email: req.query._e}, (err, user) => {
+
+        if (err) {
+            Monolog({
+                message: 'Error while trying to log out user, ' + req.query._e
+            })
+            return
+        }
 
         user.last_login = Date.now()
 

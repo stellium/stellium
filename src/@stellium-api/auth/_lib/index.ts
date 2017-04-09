@@ -1,1 +1,1 @@
-export {CleanUser} from './clean_user';
+export {CleanUser} from './clean_user'

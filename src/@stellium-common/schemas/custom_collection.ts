@@ -1,5 +1,5 @@
-import {WebsiteNavigationGroupSchema} from "./website_navigation_group";
-import {Translatable} from "./_common";
+import {WebsiteNavigationGroupSchema} from './website_navigation_group'
+import {Translatable} from './_common'
 
 
 /**

@@ -1,8 +1,6 @@
 import * as redis from 'redis'
-import {LanguageKeys, PageKeys} from "../../@stellium-common"
-import {translateCacheUrl, Monolog} from "../../@stellium-common"
+import {LanguageKeys, PageKeys, translateCacheUrl, Monolog, ENV} from '../../@stellium-common'
 import {WebsitePageModel} from "../../@stellium-database"
-import {ENV} from '../../@stellium-common/development/environment_variable'
 
 
 const redisClient = redis.createClient()

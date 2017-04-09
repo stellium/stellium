@@ -1,6 +1,6 @@
-import * as async from 'async';
-import {SeedConsole, FindOneUser, readSeederFile} from "./_lib";
-import {BlogPostModel} from "../models/blog_post";
+import * as async from 'async'
+import {SeedConsole, FindOneUser, readSeederFile} from './_lib'
+import {BlogPostModel} from '../models/blog_post'
 
 
 const removeBlogPosts = (cb: (err: any) => void): void => {

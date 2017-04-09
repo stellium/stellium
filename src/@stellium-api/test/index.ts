@@ -2,7 +2,7 @@ import * as morgan from 'morgan'
 import * as express from 'express'
 import * as mongoose from 'mongoose'
 import * as bodyParser from 'body-parser'
-import {V1Router} from "../v1/router";
+import {V1Router} from '../v1/router'
 
 
 /**

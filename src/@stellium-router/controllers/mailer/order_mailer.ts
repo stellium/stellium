@@ -1,6 +1,6 @@
-import * as nodemailer from 'nodemailer';
-import {EcommerceCartSchema} from "../../../@stellium-common";
-import {ENV, Monolog} from "../../../@stellium-common";
+import * as nodemailer from 'nodemailer'
+import {EcommerceCartSchema} from '../../../@stellium-common'
+import {ENV, Monolog} from '../../../@stellium-common'
 
 
 /**

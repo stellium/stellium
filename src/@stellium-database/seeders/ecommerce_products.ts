@@ -1,10 +1,10 @@
-import * as async from 'async';
-import {SeedConsole, readSeederFile} from "./_lib";
-import {EcommerceProductModel} from "../models/ecommerce_product";
-import {EcommerceProductVariantModel} from "../models/ecommerce_product_variant";
-import {SystemUserModel} from "../models/system_user";
-import {MediaFileModel} from "../models/media_file";
-import {Monolog} from "../../@stellium-common";
+import * as async from 'async'
+import {SeedConsole, readSeederFile} from './_lib'
+import {EcommerceProductModel} from '../models/ecommerce_product'
+import {EcommerceProductVariantModel} from '../models/ecommerce_product_variant'
+import {SystemUserModel} from '../models/system_user'
+import {MediaFileModel} from '../models/media_file'
+import {Monolog} from '../../@stellium-common'
 
 
 const removeProducts = (cb: (err: any) => void): void => {

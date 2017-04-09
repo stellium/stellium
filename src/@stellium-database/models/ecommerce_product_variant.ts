@@ -1,5 +1,5 @@
-import * as mongoose from 'mongoose';
-import {EcommerceProductVariantSchema} from "../../@stellium-common";
+import * as mongoose from 'mongoose'
+import {EcommerceProductVariantSchema} from '../../@stellium-common'
 
 
 export interface MongooseEcommerceProductVariantSchema extends EcommerceProductVariantSchema, mongoose.Document {

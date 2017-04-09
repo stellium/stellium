@@ -1,10 +1,10 @@
 import {
     LanguageKeys,
     Monolog
-} from "../../@stellium-common";
-import {DefineDefaultLanguage} from "./lib/define_default_language";
-import {DefineCurrentLanguage} from "./lib/define_current_language";
-import {AssignBaseUrl} from "./lib/assign_base_url";
+} from '../../@stellium-common'
+import {DefineDefaultLanguage} from './lib/define_default_language'
+import {DefineCurrentLanguage} from './lib/define_current_language'
+import {AssignBaseUrl} from './lib/assign_base_url'
 
 
 /**

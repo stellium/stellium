@@ -1,4 +1,4 @@
-import {SystemUserSchema} from "./system_user";
+import {SystemUserSchema} from './system_user'
 
 
 export interface MediaFolderSchema {

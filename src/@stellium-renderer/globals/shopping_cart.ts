@@ -1,5 +1,5 @@
-import {EcommerceCartModel} from "../../@stellium-database";
-import {EcommerceCartSchema} from "../../@stellium-common";
+import {EcommerceCartModel} from '../../@stellium-database'
+import {EcommerceCartSchema} from '../../@stellium-common'
 
 
 export const getShoppingCartContent = (sessionId: string,

@@ -13,12 +13,12 @@ import {
     translateCacheUrl,
     ViewsPath,
     CacheKeys,
-} from "../@stellium-common";
+} from '../@stellium-common'
 import {getShoppingCartContent} from './globals/shopping_cart'
 import {CommonPageData} from './common_interface'
 import {TemplateFunctions} from './template_functions'
-import {toJSON} from "./lib/to_json";
-import {SettingsKeys} from "../@stellium-common/keys/settings";
+import {toJSON} from './lib/to_json'
+import {SettingsKeys} from '../@stellium-common/keys/settings'
 import {ENV} from '../@stellium-common/development/environment_variable'
 
 const redisClient = redis.createClient()
@@ -67,8 +67,6 @@ export const CommonRenderer = (req: Request,
 
 
     const iFrameMode = req.app.get(CacheKeys.IFrameMode)
-
-    console.log('iFrameMode', iFrameMode)
 
 
     pageData['iFrameMode'] = iFrameMode
@@ -124,6 +122,10 @@ export const CommonRenderer = (req: Request,
         req.app.set('view engine', 'ejs')
 
 
+        // Whether Hot Reload is enabled
+        req.app.set(CacheKeys.HotReload, req.query.hot && req.query.hot === 'true')
+
+
         // Convert TemplateFunctions' class instance to plain Object
         const templateFunctions = toJSON(new TemplateFunctions(req))
 
@@ -156,11 +158,10 @@ export const CommonRenderer = (req: Request,
             // Whether hot reload is enable
             const useHotReload = hotReloadConfig && hotReloadConfig.value
 
+            const $ = cheerio.load(html)
 
             // If hot reload is enabled we want to process the html template before sending it back to the user
             if (useHotReload) {
-
-                const $ = cheerio.load(html)
 
                 /**
                  * TODO(opt): Get modular script and stylesheet files for the page to be reloaded
@@ -209,11 +210,17 @@ export const CommonRenderer = (req: Request,
                 $('body').prepend('<div id="mt-hot-progress-bar"></div>')
 
                 //noinspection ES6ConvertVarToLetConst,JSUnusedLocalSymbols
-                $('head').append(`<script>var HotReloadQueue = 0; var __DEV = true;</script>`)
-
-                // Extract the rendered and mutated page object as string
-                html = $.html()
+                $('head').append(`<script>var HotReloadQueue = 0; var __DEV = ${DEVELOPMENT};</script>`)
             }
+
+            // Set development environment if enabled
+            if (DEVELOPMENT) {
+                //noinspection ES6ConvertVarToLetConst,JSUnusedLocalSymbols
+                $('body').prepend(`<span mt-variable-value="__DEV"></span>`)
+            }
+
+            // Extract the rendered and mutated page object as string
+            html = $.html()
 
 
             // If the page editor inside stellium is requesting the page

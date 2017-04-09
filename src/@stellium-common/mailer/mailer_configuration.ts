@@ -1,6 +1,6 @@
 import {SystemSettingsModel} from "../../@stellium-database"
 import {SystemSettingsSchema} from "../schemas/system_settings"
-import {SettingsKeys} from "../keys/settings";
+import {SettingsKeys} from '../keys/settings'
 
 
 const getSettingsValueByKey = (key: string, settings: SystemSettingsSchema[]) => {

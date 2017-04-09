@@ -3,9 +3,9 @@ import {
     Response,
     NextFunction
 } from 'express'
-import {CommonRenderer} from "../../@stellium-renderer";
-import {EcommerceOrderModel, EcommerceCartModel} from "../../@stellium-database";
-import {Monolog} from "../../@stellium-common";
+import {CommonRenderer} from '../../@stellium-renderer'
+import {EcommerceOrderModel, EcommerceCartModel} from '../../@stellium-database'
+import {Monolog} from '../../@stellium-common'
 
 
 export const PaymentController = (req: Request,

@@ -1,5 +1,5 @@
-import * as mongoose from 'mongoose';
-import {CustomCollectionSchema} from "../../@stellium-common";
+import * as mongoose from 'mongoose'
+import {CustomCollectionSchema} from '../../@stellium-common'
 
 
 export interface MongooseCustomCollectionSchema extends CustomCollectionSchema, mongoose.Document {

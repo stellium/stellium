@@ -1,5 +1,5 @@
-import * as mongoose from 'mongoose';
-import {EcommerceOrderSchema} from "../../@stellium-common";
+import * as mongoose from 'mongoose'
+import {EcommerceOrderSchema} from '../../@stellium-common'
 
 
 export interface MongooseEcommerceOrderSchema extends EcommerceOrderSchema, mongoose.Document {

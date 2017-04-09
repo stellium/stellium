@@ -1,6 +1,6 @@
-import {BlogPostModel} from '../../@stellium-database/models/blog_post'
-import {Monolog} from '../../@stellium-common/monolog/monolog'
-import {CommonRenderer} from '../../@stellium-renderer/common_renderer'
+import {BlogPostModel} from '../../@stellium-database'
+import {Monolog} from '../../@stellium-common'
+import {CommonRenderer} from '../../@stellium-renderer'
 export const OffersDetailController = (req, res, next) => {
 
 

@@ -1,1 +1,1 @@
-export {} from './template_renderer';
+export {} from './template_renderer'

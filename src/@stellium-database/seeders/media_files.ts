@@ -1,11 +1,11 @@
-import * as fs from 'fs';
-import * as glob from 'glob';
-import * as async from 'async';
-import * as mime from 'mime-types';
-import * as sizeOf from 'image-size';
-import {SeedConsole, FindOneUser} from "./_lib";
-import {MediaFileModel} from "../models/media_file";
-import {MediaPath} from "../../@stellium-common";
+import * as fs from 'fs'
+import * as glob from 'glob'
+import * as async from 'async'
+import * as mime from 'mime-types'
+import * as sizeOf from 'image-size'
+import {SeedConsole, FindOneUser} from './_lib'
+import {MediaFileModel} from '../models/media_file'
+import {MediaPath} from '../../@stellium-common'
 
 
 const sizeableExtensions = ['jpeg', 'jpg', 'png', 'svg'];

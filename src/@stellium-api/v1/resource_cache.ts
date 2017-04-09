@@ -1,7 +1,6 @@
 import * as redis from 'redis'
-import {Monolog} from '../../@stellium-common'
+import {Monolog, ENV} from '../../@stellium-common'
 import {NextFunction, Request, RequestHandler, Response} from 'express'
-import {ENV} from '../../@stellium-common/development/environment_variable'
 
 
 const redisClient = redis.createClient()

@@ -1,5 +1,5 @@
-import * as mongoose from 'mongoose';
-import {LanguageSchema} from "../../@stellium-common";
+import * as mongoose from 'mongoose'
+import {LanguageSchema} from '../../@stellium-common'
 
 
 export interface MongooseLanguageSchema extends mongoose.Document, LanguageSchema {

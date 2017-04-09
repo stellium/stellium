@@ -3,7 +3,7 @@ import * as express from 'express'
 import {Request, Router} from 'express'
 import {SystemSettingsSchema, Monolog} from '../../../@stellium-common'
 import {SystemSettingsModel} from '../../../@stellium-database'
-import {ClearCacheValueByRequest} from "../resource_cache";
+import {ClearCacheValueByRequest} from '../resource_cache'
 
 
 export const SystemSettingsRouter: Router = express.Router();

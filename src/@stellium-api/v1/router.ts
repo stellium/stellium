@@ -6,8 +6,8 @@ import {MediaBundleRouter} from './media'
 import {StelliumRouter} from './stellium/template_renderer'
 import {DynamicApiRouter} from './dynamic_router'
 import {ApiCacheMiddleware} from './resource_cache'
-import {DashboardRouter} from "./dashboard/index";
-import {SystemBundleRouter} from "./system/index";
+import {DashboardRouter} from './dashboard/index'
+import {SystemBundleRouter} from './system/index'
 
 
 export const V1Router: Router = express.Router();

@@ -1,11 +1,11 @@
-import * as express from 'express';
-import {CommonRenderer} from "../../@stellium-renderer";
-import {EcommerceProductModel, MediaFileModel} from "../../@stellium-database";
+import * as express from 'express'
+import {CommonRenderer} from '../../@stellium-renderer'
+import {EcommerceProductModel, MediaFileModel} from '../../@stellium-database'
 import {
     LanguageKeys,
     Monolog,
     EcommerceProductSchema
-} from "../../@stellium-common";
+} from '../../@stellium-common'
 
 
 const getMinPrice = (variants: any[]): number => {

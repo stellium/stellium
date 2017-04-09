@@ -7,10 +7,9 @@ import * as mkdirp from 'mkdirp'
 import * as express from 'express'
 import * as nodemailer from 'nodemailer'
 import {Router} from "express"
-import {SystemUserModel, SystemSettingsModel} from "../../../@stellium-database"
-import {Monolog, StoragePath, SettingsKeys, ResolveMailConfiguration, getSettingsByKey} from "../../../@stellium-common"
-import {ClearCacheValueByRequest} from "../resource_cache";
-import {CacheKeys} from "../../../@stellium-common/keys/cache_keys";
+import {SystemUserModel} from "../../../@stellium-database"
+import {ClearCacheValueByRequest} from '../resource_cache'
+import {CacheKeys, Monolog, StoragePath, SettingsKeys, ResolveMailConfiguration, getSettingsByKey} from "../../../@stellium-common"
 
 
 export const UsersRouter: Router = express.Router()

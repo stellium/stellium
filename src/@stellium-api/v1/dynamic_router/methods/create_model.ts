@@ -1,8 +1,8 @@
-import {Response, Request, RequestHandler} from "express";
-import {Model, Document} from "mongoose";
-import {Monolog} from "../../../../@stellium-common";
-import {ClearCacheValueByRequest} from "../../resource_cache";
-import {QueryConfig} from "../route_compiler";
+import {Response, Request, RequestHandler} from 'express'
+import {Model, Document} from 'mongoose'
+import {Monolog} from '../../../../@stellium-common'
+import {ClearCacheValueByRequest} from '../../resource_cache'
+import {QueryConfig} from '../route_compiler'
 
 
 export function createModelDocument(model: Model<Document>,

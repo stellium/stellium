@@ -1,11 +1,11 @@
-import * as async from 'async';
-import * as express from 'express';
-import {CommonRenderer} from "../../@stellium-renderer";
-import {EcommerceProductModel} from "../../@stellium-database";
+import * as async from 'async'
+import * as express from 'express'
+import {CommonRenderer} from '../../@stellium-renderer'
+import {EcommerceProductModel} from '../../@stellium-database'
 import {
     Monolog,
     EcommerceProductSchema
-} from "../../@stellium-common";
+} from '../../@stellium-common'
 
 
 const CountTotalProducts = (callback: (err: any, count: number) => void): void => {

@@ -5,9 +5,8 @@ import * as async from 'async'
 import * as redis from 'redis'
 import * as express from 'express'
 import {Router} from 'express'
-import {ENV, minifyTemplate, Monolog, ViewsPath, LanguageKeys} from '../../../@stellium-common'
-import {CommonRenderer, ResolveDatabaseDependencies} from '../../../@stellium-renderer';
-import {CacheKeys} from '../../../@stellium-common/keys/cache_keys'
+import {ENV, minifyTemplate, Monolog, ViewsPath, LanguageKeys, CacheKeys} from '../../../@stellium-common'
+import {CommonRenderer, ResolveDatabaseDependencies} from '../../../@stellium-renderer'
 
 
 const redisClient = redis.createClient()
@@ -146,12 +145,13 @@ StelliumRouter.post('/prebuild-template', (req, res) => {
             renderedPage = renderedPage.replace(`<base href="/">`, `<base href="http://${ENV.stellium_domain}/">${iframeGate}`)
 
             const iFrameDependencies =
-                `<script src="//cdn.jsdelivr.net/medium-editor/latest/js/medium-editor.min.js"></script>
+                `<span mt-variable-value="StelliumIFrameMode"></span>
                  <link rel="stylesheet" href="//cdn.jsdelivr.net/medium-editor/latest/css/medium-editor.min.css"
                        type="text/css" media="screen" charset="utf-8">
                  <link rel="stylesheet" href="//cdn.jsdelivr.net/medium-editor/latest/css/themes/beagle.min.css"
                        type="text/css" media="screen" charset="utf-8">
                  <link rel="stylesheet" href="css/medium-editor.css" type="text/css">
+                 <script src="c/js/input-bindings.js"></script>
             `
 
             renderedPage = renderedPage.replace('<!--iframe-->', `${iFrameDependencies}`)

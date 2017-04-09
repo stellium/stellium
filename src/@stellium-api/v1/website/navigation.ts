@@ -1,7 +1,7 @@
-import * as express from 'express';
-import {Router} from "express";
-import {WebsiteNavigationModel} from "@stellium-database";
-import {Monolog} from "@stellium-common";
+import * as express from 'express'
+import {Router} from 'express'
+import {WebsiteNavigationModel} from '@stellium-database'
+import {Monolog} from '@stellium-common'
 
 
 export const WebsiteNavigationRouter: Router = express.Router();

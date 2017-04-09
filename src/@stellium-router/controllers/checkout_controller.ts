@@ -1,5 +1,5 @@
-import * as express from 'express';
-import {CommonRenderer} from "../../@stellium-renderer";
+import * as express from 'express'
+import {CommonRenderer} from '../../@stellium-renderer'
 
 
 export const CheckOutController = (req: express.Request,

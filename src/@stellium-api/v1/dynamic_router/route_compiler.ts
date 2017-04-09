@@ -1,14 +1,14 @@
-import {getModelCollection} from "./methods/index_collection";
-import {Router} from "express";
+import {getModelCollection} from './methods/index_collection'
+import {Router} from 'express'
 import {
     Model,
     Document
-} from "mongoose";
-import {assertRouteValid} from "./lib/assert_path";
-import {getModelDocument} from "./methods/get_model";
-import {createModelDocument} from "./methods/create_model";
-import {updateModelDocument} from "./methods/update_model";
-import {DynamicRouteMethod} from "./dynamic_routes";
+} from 'mongoose'
+import {assertRouteValid} from './lib/assert_path'
+import {getModelDocument} from './methods/get_model'
+import {createModelDocument} from './methods/create_model'
+import {updateModelDocument} from './methods/update_model'
+import {DynamicRouteMethod} from './dynamic_routes'
 
 
 export interface QueryConfig {

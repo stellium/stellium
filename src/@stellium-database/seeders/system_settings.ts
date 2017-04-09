@@ -1,7 +1,7 @@
-import * as async from 'async';
+import * as async from 'async'
 import {SeedConsole, FindOneUser, readSeederFile} from "./_lib"
 import {SystemLanguageModel} from "../models/system_language"
-import {SystemSettingsModel} from "../models/system_settings";
+import {SystemSettingsModel} from '../models/system_settings'
 
 
 const removeData = (cb: (err: any) => void): void => {

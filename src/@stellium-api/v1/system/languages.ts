@@ -1,5 +1,5 @@
-import * as express from 'express';
-import {LanguageModel} from "../../../../../Database/Models/System/Language";
+import * as express from 'express'
+import {LanguageModel} from '../../../../../Database/Models/System/Language'
 
 
 export const LanguageRouter = express.Router();

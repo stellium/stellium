@@ -110,16 +110,28 @@ export class TemplateFunctions {
     __request: Request
 
 
-    iFrameMode: boolean
+    iFrameMode = false
+
+
+    HotReloadEnabled = false
 
 
     constructor(private req: Request) {
+
         this.__request = req
+
+        this.HotReloadEnabled = req.app.get(CacheKeys.HotReload)
+
         this.iFrameMode = req.app.get(CacheKeys.IFrameMode)
+
         this.projectSettings = req.app.get(CacheKeys.SettingsKey)
+
         this.currentLanguage = req.app.get(LanguageKeys.CurrentLanguage)
+
         this.defaultLanguage = req.app.get(LanguageKeys.DefaultLanguage)
+
         this.availableLanguages = req.app.get(LanguageKeys.AvailableLanguages)
+
         this.URLTranslator = URLTranslator(this.currentLanguage)
     }
 
@@ -282,13 +294,39 @@ export class TemplateFunctions {
     }
 
 
+    private _stelliumImageInputCompiler(bindingPath: string, buttonText = 'change image'): string {
+
+        const baseImageButton = `<button mt-image-binding="${bindingPath}">${buttonText}</button>`
+
+        console.log('this.iFrameMode', this.iFrameMode)
+
+        return this.iFrameMode ? baseImageButton : ''
+    }
+
+
+    private _stelliumHotReloadWrapper(): string {
+
+        let hotWrapperAttribute = ''
+
+        if (this.HotReloadEnabled) hotWrapperAttribute = 'mt-hot-reload-wrapper'
+
+        return hotWrapperAttribute
+    }
+
+
     get DOMCompiler(): any {
 
         return {
             // Create links
             // although annoying and obscure, we need to deconstruct the parameters
             // to ignore tslint's complaints about parameters not matching
-            Link: (...args: any[]) => this._stelliumLinkCompiler(args[0], args[1], args[2])
+            Link: (...args: any[]) => this._stelliumLinkCompiler(args[0], args[1], args[2]),
+
+
+            ImagePicker: (...args: any[]) => this._stelliumImageInputCompiler(args[0], args[1]),
+
+
+            HotReloadWrapper: () => this._stelliumHotReloadWrapper()
         }
     }
 
@@ -573,6 +611,16 @@ export class TemplateFunctions {
 
             // Assign stellium module order number for Stellium medium sorting
             allElements.attr('mt-stellium-module-order', ++this._moduleOrder)
+        }
+
+
+        if (!this.iFrameMode) {
+
+            // Removes input binding path in front end
+            allElements.removeAttr('mt-medium-binding')
+
+            // Removes input binding path in front end
+            allElements.removeAttr('mt-input-binding')
         }
 
         allElements.attr(this._moduleComponentId, '')

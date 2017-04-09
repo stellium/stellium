@@ -1,4 +1,4 @@
-import * as path from 'path';
+import * as path from 'path'
 
 
 export interface AppEnvironment {
@@ -19,8 +19,5 @@ export interface AppEnvironment {
     secret: string,
     redis_index: number,
 }
-
-
-console.log('path.resolve(StelliumRootPath, \'env\')', path.resolve(StelliumRootPath, 'env'))
 
 export const ENV: AppEnvironment = require(path.resolve(StelliumRootPath, 'env'))

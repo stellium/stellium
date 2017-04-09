@@ -1,5 +1,5 @@
-import * as mongoose from 'mongoose';
-import {BlogPostSchema} from "../../@stellium-common";
+import * as mongoose from 'mongoose'
+import {BlogPostSchema} from '../../@stellium-common'
 
 
 export interface MongooseBlogPostSchema extends BlogPostSchema, mongoose.Document {

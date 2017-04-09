@@ -1,4 +1,4 @@
-import {HasUser, SEOFields, SoftDelete} from "./_common";
+import {HasUser, SEOFields, SoftDelete} from './_common'
 
 
 export interface BlogPostContent {

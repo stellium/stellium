@@ -1,8 +1,8 @@
-import * as glob from 'glob';
-import * as express from 'express';
-import {Router} from "express";
-import {MediaFileModel} from "../../../@stellium-database";
-import {MediaPath, Monolog} from "../../../@stellium-common";
+import * as glob from 'glob'
+import * as express from 'express'
+import {Router} from 'express'
+import {MediaFileModel} from '../../../@stellium-database'
+import {MediaPath, Monolog} from '../../../@stellium-common'
 
 
 export const MediaMediaRouter: Router = express.Router();

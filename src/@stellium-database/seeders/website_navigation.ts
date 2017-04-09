@@ -1,7 +1,7 @@
-import * as async from 'async';
-import {SeedConsole, FindOneUser, readSeederFile} from "./_lib";
-import {WebsiteNavigationModel} from "../models/website_navigation";
-import {WebsiteNavigationGroupModel} from "../models/website_navigation_group";
+import * as async from 'async'
+import {SeedConsole, FindOneUser, readSeederFile} from './_lib'
+import {WebsiteNavigationModel} from '../models/website_navigation'
+import {WebsiteNavigationGroupModel} from '../models/website_navigation_group'
 
 
 const removeNavigation = (cb: (err: any) => void): void => {

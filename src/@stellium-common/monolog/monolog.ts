@@ -1,6 +1,6 @@
 import 'colors';
-import * as callsite from 'callsite';
-import {MonologModel, MonologSchema} from "./model";
+import * as callsite from 'callsite'
+import {MonologModel, MonologSchema} from './model'
 
 
 const GetErrorColor = (config: MonologSchema): string => {

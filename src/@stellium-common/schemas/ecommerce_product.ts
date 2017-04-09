@@ -1,7 +1,7 @@
-import {MediaFileSchema} from "./media_file";
-import {SystemUserSchema} from "./system_user";
-import {Translatable} from "./_common";
-import {EcommerceProductVariantSchema} from "./ecommerce_product_variant";
+import {MediaFileSchema} from './media_file'
+import {SystemUserSchema} from './system_user'
+import {Translatable} from './_common'
+import {EcommerceProductVariantSchema} from './ecommerce_product_variant'
 
 
 export interface VariantOptions {

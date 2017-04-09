@@ -1,7 +1,7 @@
 import * as mongoose from 'mongoose'
 import {SystemUserSchema} from '../../@stellium-common'
 import * as passportLocalMongoose from 'passport-local-mongoose'
-import {Document, Model} from "mongoose";
+import {Document, Model} from 'mongoose'
 
 
 export interface MongooseSystemUserDocument extends Document, SystemUserSchema {

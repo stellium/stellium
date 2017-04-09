@@ -1,9 +1,9 @@
 import * as async from 'async'
 import * as nodemailer from 'nodemailer'
 import {SystemSettingsSchema, ENV, Monolog} from '../../../../@stellium-common'
-import {SystemSettingsModel} from "../../../../@stellium-database";
-import {Request} from "express";
-import {basicEmailTemplate} from "./basic_template";
+import {SystemSettingsModel} from '../../../../@stellium-database'
+import {Request} from 'express'
+import {basicEmailTemplate} from './basic_template'
 
 
 const getSettingsValueByKey = (key: string, settings: SystemSettingsSchema[]) => {

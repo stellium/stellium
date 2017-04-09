@@ -1,16 +1,16 @@
 import {
     Model,
     Document
-} from "mongoose";
+} from 'mongoose'
 import {
     NextFunction,
     Request,
     Response,
     RequestHandler
-} from "express";
-import {Monolog} from "../../../../@stellium-common";
-import {CacheQueryResult} from "../../resource_cache";
-import {QueryConfig} from "../route_compiler";
+} from 'express'
+import {Monolog} from '../../../../@stellium-common'
+import {CacheQueryResult} from '../../resource_cache'
+import {QueryConfig} from '../route_compiler'
 
 
 export function getModelDocument(model: Model<Document>, config?: QueryConfig): RequestHandler {

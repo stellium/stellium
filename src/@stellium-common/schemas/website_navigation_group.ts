@@ -1,4 +1,4 @@
-import {WebsiteNavigationSchema} from "./website_navigation";
+import {WebsiteNavigationSchema} from './website_navigation'
 
 
 export interface WebsiteNavigationGroupSchema {

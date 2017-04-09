@@ -5,8 +5,7 @@ import * as colors from 'colors'
 import * as mkdirp from 'mkdirp'
 import * as browserify from 'browserify'
 import * as babelify from 'babelify'
-import * as uglify from 'uglifyify'
-import {CachePath, StoragePath} from "../@stellium-common";
+import {CachePath, StoragePath} from '../@stellium-common'
 import ReadWriteStream = NodeJS.ReadWriteStream
 
 
@@ -22,6 +21,11 @@ const scriptBluePrint = [
         from: path.resolve(StoragePath, 'scripts'),
         to: path.resolve(CachePath, 'js'),
         file_name: 'stellium.js'
+    },
+    {
+        from: path.resolve(StoragePath, 'scripts'),
+        to: path.resolve(CachePath, 'js'),
+        file_name: 'input-bindings.js'
     }
 ]
 
@@ -44,11 +48,19 @@ const compileScript = (_bluePrint, cb: (err: any) => void): void => {
                 cb(null)
             })
 
-            browserify(`${_bluePrint.from}/${_bluePrint.file_name}`)
-            .transform(babelify, {presets: ["es2015"]})
-            .transform(<(file: string, opts?: any) => ReadWriteStream>uglify)
-            .bundle()
-            .pipe(bundleFs)
+            // transpile ES6+ to ES5
+            let browserifyOptions = browserify(`${_bluePrint.from}/${_bluePrint.file_name}`)
+                .transform(babelify, {presets: ['es2015']})
+
+            // minify scripts in production
+            if (!DEVELOPMENT) {
+                browserifyOptions = browserifyOptions.transform(<any>{
+                    'global': true
+                }, 'uglifyify')
+            }
+
+            browserifyOptions.bundle()
+                .pipe(bundleFs)
         }
     })
 }

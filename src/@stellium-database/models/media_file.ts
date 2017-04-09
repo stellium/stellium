@@ -1,6 +1,6 @@
-import * as mongoose from 'mongoose';
-import {MediaFileSchema} from "../../@stellium-common";
-import {Document, Model} from "mongoose";
+import * as mongoose from 'mongoose'
+import {MediaFileSchema} from '../../@stellium-common'
+import {Document, Model} from 'mongoose'
 
 
 export interface MongooseMediaFileDocument extends Document, MediaFileSchema {

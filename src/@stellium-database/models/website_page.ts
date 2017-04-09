@@ -1,5 +1,5 @@
-import * as mongoose from 'mongoose';
-import {WebsitePageSchema} from "../../@stellium-common";
+import * as mongoose from 'mongoose'
+import {WebsitePageSchema} from '../../@stellium-common'
 
 
 export interface MongooseWebsitePageSchema extends WebsitePageSchema, mongoose.Document {

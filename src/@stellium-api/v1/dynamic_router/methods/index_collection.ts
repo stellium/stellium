@@ -9,7 +9,7 @@ import {
 } from 'express'
 import {Monolog, SystemUserSchema} from '../../../../@stellium-common'
 import {CacheQueryResult} from "../../resource_cache"
-import {QueryConfig} from "../route_compiler";
+import {QueryConfig} from '../route_compiler'
 
 
 export interface ExtendedDocument extends Document {
