@@ -248,38 +248,43 @@ export class TemplateFunctions {
 
     getEmbeddedLink(link: { type: string, url: string }, stripHash = false): string {
 
-        let result = 'undefined';
+        let result = 'undefined'
+
 
         switch (link.type) {
+
             case 'internal':
-                result = link.url === 'home' ? '/' : link.url;
-                break;
+                result = link.url === 'home' ? '/' : link.url
+                break
+
             case 'external':
                 const hasPrefix = link.url.match(/^https?/)
                 result = hasPrefix ? link.url : 'http://' + link.url
-                break;
+                break
+
             case 'anchor':
                 result = '#anchor-id-' + this._moduleIndex
-                break;
+                break
+
             case 'pdf':
-                result = 'c/pdf/' + link.url;
-                break;
+                result = 'c/pdf/' + link.url
+                break
         }
-        return stripHash ? result.replace(/^#/, '') : result;
+
+        return stripHash ? result.replace(/^#/, '') : result
     }
 
 
-    private _stelliumLinkCompiler(text,
-                                  link: { type: string, url: string },
-                                  attributes: any = {}): string {
+    private _stelliumLinkCompiler(config: {link: { type: string, url: string }, text: Translatable},
+                                  bindingPath: string,
+                                  attributes: any = {},
+                                  htmlContent: string): string {
 
-        const basicLinkTemplate = `<a href="${this.getEmbeddedLink(link)}"></a>`
+        const basicLinkTemplate = `<a href="${this.getEmbeddedLink(config.link)}">${htmlContent || this.translate(config.text)}</a>`
 
         const $ = cheerio.load(basicLinkTemplate)
 
         const linkElement = $('a')
-
-        linkElement.html(text)
 
         for (let i in attributes) {
             if (attributes.hasOwnProperty(i)) {
@@ -287,20 +292,24 @@ export class TemplateFunctions {
             }
         }
 
-        linkElement.attr('data-stellium-link-type', link.type)
+        linkElement.attr('data-stellium-link-type', config.link.type)
+
+        linkElement.attr('mt-link-editor', bindingPath)
 
         // Returns the modified element as string
         return $.html()
     }
 
 
-    private _stelliumImageInputCompiler(bindingPath: string, buttonText = 'change image'): string {
+    private _stelliumImageInputCompiler(bindingPath: string, buttonText = 'change image', attributes = {}): string {
 
-        const baseImageButton = `<button mt-image-binding="${bindingPath}">${buttonText}</button>`
+        const $ = cheerio.load(`<button mt-image-binding="${bindingPath}">${buttonText}</button>`)
 
-        console.log('this.iFrameMode', this.iFrameMode)
+        for (let i in attributes) {
+            $('button').attr(i, attributes[i])
+        }
 
-        return this.iFrameMode ? baseImageButton : ''
+        return this.iFrameMode ? $.html() : ''
     }
 
 
@@ -320,13 +329,28 @@ export class TemplateFunctions {
             // Create links
             // although annoying and obscure, we need to deconstruct the parameters
             // to ignore tslint's complaints about parameters not matching
-            Link: (...args: any[]) => this._stelliumLinkCompiler(args[0], args[1], args[2]),
+            Link: (...args: any[]) => this._stelliumLinkCompiler(args[0], args[1], args[2], args[3]),
 
 
-            ImagePicker: (...args: any[]) => this._stelliumImageInputCompiler(args[0], args[1]),
+            ImagePicker: (...args: any[]) => this._stelliumImageInputCompiler(args[0], args[1], args[2]),
 
 
             HotReloadWrapper: () => this._stelliumHotReloadWrapper()
+        }
+    }
+
+
+    get AttributeDecorator(): any {
+
+        return {
+
+            HotReloadElement: 'mt-hot-reload',
+
+            HotReloadWrapper: 'mt-hot-wrapper',
+
+            HotReloadLink: 'mt-hot-link',
+
+            HotReloadScript: 'mt-hot-script'
         }
     }
 
@@ -406,7 +430,7 @@ export class TemplateFunctions {
      * @param fallback
      * @returns {string}
      */
-    translate(translatable: Translatable, fallback: string): string {
+    translate(translatable: Translatable, fallback?: string): string {
 
         // If undefined, try to return translatable of default language
         if (typeof translatable[this.lang] === 'undefined' || translatable[this.lang] == '') {
@@ -565,43 +589,14 @@ export class TemplateFunctions {
         // Find the very first HTML element of the component
         const moduleElement = allElements.first();
 
-
-        /**
-         * TODO(DEDE): How to create an anchor link target inside a module
-         * @date - 22 Mar 2017
-         * @time - 4:20 AM
-         */
-        /**
-         * If the module has an anchor link set, we will prepend a dummy target to the first element of the module
-         * Page data example:
-         * {
-         *      ...
-         *      modules: [
-         *          {
-         *              ...
-         *              order: 1,
-         *              anchor_link: 'super-villa',
-         *              ...
-         *          }
-         *      ],
-         *      ...
-         * }
-         *
-         * Button config:
-         * {
-         *      ...
-         *      type: 'anchor',
-         *      link: 'super-villa'
-         *      ...
-         * }
-         */
-        // Prepend `anchor link target` if the section is set up as an anchor target
-        moduleElement.prepend(`<span class="anchor-target" id="anchor-id-${this._moduleIndex}"></span>`)
-
         // Set module template name
         if (!this.iFrameMode) moduleElement.attr('mt-stellium-module-template', moduleData.template)
 
+        // Append module order for section elements only
         if (isSection && this.iFrameMode) {
+
+            // Prepend `anchor link target` if the section is set up as an anchor target
+            moduleElement.prepend(`<span class="anchor-target" id="anchor-id-${++this._moduleOrder}"></span>`)
 
             // Assign stellium class for click handling in page editor
             moduleElement.addClass('mt-stellium-module')
@@ -610,7 +605,7 @@ export class TemplateFunctions {
             moduleElement.addClass('mt-stellium-module-order')
 
             // Assign stellium module order number for Stellium medium sorting
-            allElements.attr('mt-stellium-module-order', ++this._moduleOrder)
+            allElements.attr('mt-stellium-module-order', this._moduleOrder)
         }
 
 
@@ -623,11 +618,14 @@ export class TemplateFunctions {
             allElements.removeAttr('mt-input-binding')
         }
 
+
         allElements.attr(this._moduleComponentId, '')
+
+        if (DEVELOPMENT) allElements.attr('mt-module-template', moduleData.template)
+
 
         const templateAsString = $.html()
 
-        if (!DEVELOPMENT) return templateAsString
 
         // Return the manipulated HTML Element as string
         // add comment if in Dev mode

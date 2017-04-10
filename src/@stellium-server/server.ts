@@ -15,6 +15,7 @@ import {ApiRouter} from '../@stellium-api'
 import {ErrorsHandler} from './errors_handler'
 import {compileScripts} from '../@stellium-compiler'
 import {CacheKeys} from '../@stellium-common'
+import {ScriptCompilerBluePrint} from '../@stellium-compiler/scripts_compiler'
 
 
 const RedisStore = connectRedis(session)
@@ -34,13 +35,13 @@ export class ApplicationServer {
      * @method bootstrap
      * @static
      */
-    public static bootstrap(): Promise<ApplicationServer> {
+    public static bootstrap(scriptBluePrint: ScriptCompilerBluePrint[] = []): Promise<ApplicationServer> {
 
         return new Promise((resolve, reject) => {
 
             rimraf(CachePath, () => {
 
-                compileScripts(err => {
+                compileScripts(scriptBluePrint, err => {
 
                     if (err) {
                         reject(err)

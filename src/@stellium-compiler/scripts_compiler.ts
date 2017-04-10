@@ -9,7 +9,14 @@ import {CachePath, StoragePath} from '../@stellium-common'
 import ReadWriteStream = NodeJS.ReadWriteStream
 
 
-const scriptBluePrint = [
+export interface ScriptCompilerBluePrint {
+    from: string,
+    to: string,
+    file_name: string
+}
+
+
+const scriptBluePrint: ScriptCompilerBluePrint[] = [
     /*
      {
      from: path.resolve(ViewsPath, 'modules/footer/booking'),
@@ -18,12 +25,12 @@ const scriptBluePrint = [
      },
      */
     {
-        from: path.resolve(StoragePath, 'scripts'),
+        from: path.resolve(StelliumRootPath, '../../', 'lib', 'scripts'),
         to: path.resolve(CachePath, 'js'),
         file_name: 'stellium.js'
     },
     {
-        from: path.resolve(StoragePath, 'scripts'),
+        from: path.resolve(StelliumRootPath, '../../', 'lib', 'scripts'),
         to: path.resolve(CachePath, 'js'),
         file_name: 'input-bindings.js'
     }
@@ -66,7 +73,9 @@ const compileScript = (_bluePrint, cb: (err: any) => void): void => {
 }
 
 
-export function compileScripts(cb: (err: any) => void): void {
+export function compileScripts(blueprint: ScriptCompilerBluePrint[] = [], cb?: (err: any) => void): void {
 
-    async.map(scriptBluePrint, compileScript, err => cb(err))
+    let bluePrintBundle = [].concat(scriptBluePrint, blueprint)
+
+    async.map(bluePrintBundle, compileScript, err => cb(err))
 }

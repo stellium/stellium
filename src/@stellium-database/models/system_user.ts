@@ -80,7 +80,8 @@ const Schema = new mongoose.Schema({
 })
 
 Schema.plugin(passportLocalMongoose, {
-    usernameField: 'email'
+    usernameField: 'email',
+    usernameLowerCase: true
 })
 
 
