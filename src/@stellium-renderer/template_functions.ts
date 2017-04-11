@@ -294,7 +294,7 @@ export class TemplateFunctions {
 
         linkElement.attr('data-stellium-link-type', config.link.type)
 
-        linkElement.attr('mt-link-editor', bindingPath)
+        if (this.iFrameMode) linkElement.attr('mt-link-binding', bindingPath)
 
         // Returns the modified element as string
         return $.html()
@@ -561,11 +561,11 @@ export class TemplateFunctions {
     private _shimHtmlElements(moduleData: any,
                               isSection: boolean): string {
 
-        let modulePath = path.resolve(ViewsPath, 'modules', moduleData.template, 'component.ejs');
+        let modulePath = path.resolve(ViewsPath, 'modules', moduleData.template, 'component.ejs')
 
-        let cachedComponentId = memoryCache.get(ModuleCachePrefix + moduleData.template);
+        let cachedComponentId = memoryCache.get(ModuleCachePrefix + moduleData.template)
 
-        if (cachedComponentId) this._moduleComponentId = cachedComponentId;
+        if (cachedComponentId) this._moduleComponentId = cachedComponentId
 
         // bind template globals to the injected data to be rendered
         let templateData = {
@@ -575,19 +575,19 @@ export class TemplateFunctions {
         }
 
         // EJS file read to string
-        let ejsString = fs.readFileSync(modulePath, 'utf8');
+        let ejsString = fs.readFileSync(modulePath, 'utf8')
 
         // EJS compiled to HTML
         let renderedTemplate = ejs.render(ejsString, templateData, {cache: false})
 
         // Load template into a new cheerio instance
-        let $ = cheerio.load(renderedTemplate);
+        let $ = cheerio.load(renderedTemplate)
 
         // All elements to be shimmed
-        let allElements = $('*');
+        let allElements = $('*')
 
         // Find the very first HTML element of the component
-        const moduleElement = allElements.first();
+        const moduleElement = allElements.first()
 
         // Set module template name
         if (!this.iFrameMode) moduleElement.attr('mt-stellium-module-template', moduleData.template)

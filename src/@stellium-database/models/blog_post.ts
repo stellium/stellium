@@ -22,7 +22,9 @@ const Schema = new mongoose.Schema({
             type: String
         },
         order: Number,
-        content: mongoose.Schema.Types.Mixed,
+        content: {
+            type: mongoose.Schema.Types.Mixed
+        },
     }],
     status: Boolean,
     language: String,

@@ -1,0 +1,127 @@
+.medium-editor-toolbar {
+    border-radius: 2px;
+}
+
+.medium-editor-toolbar li button {
+    color: rgba(255, 255, 255, 0.86);
+}
+
+.medium-editor-toolbar li button:hover {
+    color: rgba(255, 89, 143, 0.72);
+}
+
+.medium-editor-toolbar li .medium-editor-button-active {
+    background-color: #000;
+    color: #ff598f !important;
+}
+
+.medium-editor-toolbar li .medium-editor-button-first {
+    border-bottom-left-radius: 2px;
+    border-top-left-radius: 2px;
+}
+
+.medium-editor-toolbar li .medium-editor-button-last {
+    border-bottom-right-radius: 2px;
+    border-top-right-radius: 2px;
+}
+
+.medium-editor-element {
+    outline: none;
+}
+
+.medium-editor-element blockquote {
+    position: relative;
+}
+
+.medium-editor-element blockquote:before {
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    left: -38px;
+    content: "";
+    height: 100%;
+    display: block;
+    position: absolute;
+    background-color: rgba(10, 20, 30, 0.54);
+}
+
+.medium-container {
+    padding: 0 8px;
+}
+
+.medium-container .medium-label {
+    font-weight: 600;
+    font-size: .85rem;
+    margin-bottom: .2rem;
+    letter-spacing: 0.5px;
+    color: rgba(10, 20, 30, 0.4);
+}
+
+.medium-container medium-editor {
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.medium-container medium-editor .medium-editor-element b {
+    color: black;
+}
+
+[contenteditable] {
+    outline: none;
+}
+
+[mt-image-binding] {
+    color: white;
+    border: none;
+    z-index: 10;
+    padding: 1rem 2rem;
+    position: relative;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    background-color: rgba(0, 0, 0, .54);
+}
+
+[mt-image-binding].bottom-right {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+}
+
+[mt-image-binding].bottom-left {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    margin: auto;
+}
+
+[mt-image-binding].large {
+    font-size: 1.5rem;
+    padding: 1.5rem 3rem;
+    max-height: 48px;
+}
+
+[mt-image-binding].left {
+    position: absolute;
+    margin: auto;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    max-height: 40px;
+}
+
+[mt-image-binding].top-left {
+    position: absolute;
+    left: 0;
+    top: 0;
+    max-height: 40px;
+}
+
+[mt-image-binding].right {
+    position: absolute;
+    margin: auto;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    max-height: 40px;
+}

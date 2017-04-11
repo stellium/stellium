@@ -7,6 +7,7 @@ import {AjaxController} from './controllers/ajax/ajax_controller'
 import {SystemSettingsMiddleware} from './middlewares/system_settings'
 import {AnalyticsMiddleware} from './analytics/middleware'
 import {OffersDetailController} from './offers/offers_controller'
+import {CustomRoutesMiddleware} from './custom/index'
 
 
 const ignoreMiddleware = (req, res, next) => {
@@ -78,12 +79,10 @@ export class ApplicationRouter {
         this.app.use(MultiLanguageMiddleware)
 
 
+        this.app.use(CustomRoutesMiddleware)
 
 
         this.app.get('/offers/:offerUrl', OffersDetailController)
-
-
-
 
 
         // Get default page URL and assign it to the current request.url address

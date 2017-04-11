@@ -146,12 +146,10 @@ StelliumRouter.post('/prebuild-template', (req, res) => {
 
             const iFrameDependencies =
                 `<span mt-variable-value="StelliumIFrameMode"></span>
-                 <link rel="stylesheet" href="//cdn.jsdelivr.net/medium-editor/latest/css/medium-editor.min.css"
-                       type="text/css" media="screen" charset="utf-8">
-                 <link rel="stylesheet" href="//cdn.jsdelivr.net/medium-editor/latest/css/themes/beagle.min.css"
-                       type="text/css" media="screen" charset="utf-8">
-                 <link rel="stylesheet" href="css/medium-editor.css" type="text/css">
-                 <script src="c/js/input-bindings.js"></script>
+                 <link rel="stylesheet" href="c/css/medium-editor.min.css" type="text/css" media="screen" charset="utf-8">
+                 <link rel="stylesheet" href="c/css/medium-beagle.min.css" type="text/css" media="screen" charset="utf-8">
+                 <link rel="stylesheet" href="c/css/medium-editor-override.css" type="text/css" charset="utf-8">
+                 <script src="c/js/input-bindings.js" type="text/javascript" async="true" defer="true"></script>
             `
 
             renderedPage = renderedPage.replace('<!--iframe-->', `${iFrameDependencies}`)
