@@ -1,1 +1,0 @@
-export {AnalyticsMiddleware} from './middleware'

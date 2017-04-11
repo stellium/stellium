@@ -250,7 +250,6 @@ export class TemplateFunctions {
 
         let result = 'undefined'
 
-
         switch (link.type) {
 
             case 'internal':
@@ -263,7 +262,7 @@ export class TemplateFunctions {
                 break
 
             case 'anchor':
-                result = '#anchor-id-' + this._moduleIndex
+                result = '#anchor-id-' + link.url
                 break
 
             case 'pdf':
@@ -275,12 +274,12 @@ export class TemplateFunctions {
     }
 
 
-    private _stelliumLinkCompiler(config: {link: { type: string, url: string }, text: Translatable},
+    private _stelliumLinkCompiler(config: {link: { type: string, url: string }, text?: Translatable, title?: Translatable},
                                   bindingPath: string,
                                   attributes: any = {},
                                   htmlContent: string): string {
 
-        const basicLinkTemplate = `<a href="${this.getEmbeddedLink(config.link)}">${htmlContent || this.translate(config.text)}</a>`
+        const basicLinkTemplate = `<a href="${this.getEmbeddedLink(config.link)}">${htmlContent || this.translate(config.text || config.title)}</a>`
 
         const $ = cheerio.load(basicLinkTemplate)
 
@@ -290,6 +289,13 @@ export class TemplateFunctions {
             if (attributes.hasOwnProperty(i)) {
                 linkElement.attr(i, attributes[i])
             }
+        }
+
+        if (config.link.type === 'anchor') {
+
+            linkElement.addClass('has-has-link')
+
+            linkElement.attr('data-hash', 'anchor-id-' + config.link.url)
         }
 
         linkElement.attr('data-stellium-link-type', config.link.type)
@@ -302,6 +308,13 @@ export class TemplateFunctions {
 
 
     private _stelliumImageInputCompiler(bindingPath: string, buttonText = 'change image', attributes = {}): string {
+
+        if (typeof buttonText === 'object') {
+
+            attributes = buttonText
+
+            buttonText = 'change image'
+        }
 
         const $ = cheerio.load(`<button mt-image-binding="${bindingPath}">${buttonText}</button>`)
 
@@ -323,9 +336,22 @@ export class TemplateFunctions {
     }
 
 
+    private _stelliumDataDuplicatorButton(text: string, bindingPath: string, attributes: any): string {
+
+        const $ = cheerio.load(`<button mt-data-duplicator="${bindingPath}"><span>${text}</span></button>`)
+
+        for (let i in attributes) {
+            if (attributes.hasOwnProperty(i)) $('button').attr(i, attributes[i])
+        }
+
+        return $.html()
+    }
+
+
     get DOMCompiler(): any {
 
         return {
+
             // Create links
             // although annoying and obscure, we need to deconstruct the parameters
             // to ignore tslint's complaints about parameters not matching
@@ -335,7 +361,11 @@ export class TemplateFunctions {
             ImagePicker: (...args: any[]) => this._stelliumImageInputCompiler(args[0], args[1], args[2]),
 
 
-            HotReloadWrapper: () => this._stelliumHotReloadWrapper()
+            HotReloadWrapper: () => this._stelliumHotReloadWrapper(),
+
+            // Button to duplicate a content off a collection
+            // and append it to the end of the collection
+            DataDuplicator: (...args: any[]) => this._stelliumDataDuplicatorButton(args[0], args[1], args[2]),
         }
     }
 
@@ -593,19 +623,22 @@ export class TemplateFunctions {
         if (!this.iFrameMode) moduleElement.attr('mt-stellium-module-template', moduleData.template)
 
         // Append module order for section elements only
-        if (isSection && this.iFrameMode) {
+        if (isSection) {
 
             // Prepend `anchor link target` if the section is set up as an anchor target
             moduleElement.prepend(`<span class="anchor-target" id="anchor-id-${++this._moduleOrder}"></span>`)
 
-            // Assign stellium class for click handling in page editor
-            moduleElement.addClass('mt-stellium-module')
+            if(this.iFrameMode) {
 
-            // Assign stellium module order number for Stellium medium sorting
-            moduleElement.addClass('mt-stellium-module-order')
+                // Assign stellium class for click handling in page editor
+                moduleElement.addClass('mt-stellium-module')
 
-            // Assign stellium module order number for Stellium medium sorting
-            allElements.attr('mt-stellium-module-order', this._moduleOrder)
+                // Assign stellium module order number for Stellium medium sorting
+                moduleElement.addClass('mt-stellium-module-order')
+
+                // Assign stellium module order number for Stellium medium sorting
+                allElements.attr('mt-stellium-module-order', this._moduleOrder)
+            }
         }
 
 

@@ -3,10 +3,10 @@ import * as path from 'path'
 
 export interface AppEnvironment {
     production: boolean,
+    log_errors: boolean,
     render_from_json: boolean,
     multi_cluster: boolean,
     base_url: string,
-    api_url: string,
     stellium_domain: string,
     modules: string[],
     ssl_path: string,

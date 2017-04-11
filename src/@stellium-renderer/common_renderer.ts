@@ -20,6 +20,9 @@ import {TemplateFunctions} from './template_functions'
 import {toJSON} from './lib/to_json'
 import {SettingsKeys} from '../@stellium-common/keys/settings'
 import {ENV} from '../@stellium-common/development/environment_variable'
+const universalAnalytics = require('universal-analytics')
+
+
 
 const redisClient = redis.createClient()
 
@@ -146,11 +149,32 @@ export const CommonRenderer = (req: Request,
                 return
             }
 
-            // Retrieve universal analytics visitor saved to current request
-            const analyticsVisitor = req.app.get(CacheKeys.UAVisitor)
+            if (!iFrameMode && !DEVELOPMENT) {
 
-            // Trigger universal analytics if available
-            analyticsVisitor && analyticsVisitor.page(req.originalUrl).send()
+                const GATrackingIdSettings = systemSettings.find(_setting => _setting.key === SettingsKeys.AnalyticsTrackingID)
+
+                if (GATrackingIdSettings) {
+
+                    universalAnalytics(GATrackingIdSettings.value, req.session.id).pageview(req.originalUrl, err => {
+
+                        console.log('analytics send for', GATrackingIdSettings.value, req.session.session_id)
+
+                        if (err) {
+                            Monolog({
+                                message: 'Registering visitor for analytics tracking failed',
+                                error: err
+                            })
+                        }
+                    })
+
+                } else {
+
+                    Monolog({
+                        message: 'Analytics Tracking ID was not found while attempting to track analytics data',
+                        error: new Error('Analytics Tracking ID Missing')
+                    })
+                }
+            }
 
             // Retrieve hot reload configuration
             const hotReloadConfig = systemSettings.find(_setting => _setting.key === SettingsKeys.HotPageReload)
@@ -228,21 +252,6 @@ export const CommonRenderer = (req: Request,
             // page previewer
             if (callback) {
 
-                /*
-                // Whether Stellium is request the page through the page editor
-                // if it was, we want to inject the iFrame mode identifier to
-                // cancel out all navigation events
-                if (iFrameMode) {
-
-                    const $ = cheerio.load(html)
-
-                    //noinspection ES6ConvertVarToLetConst,JSUnusedLocalSymbols
-                    $('head').append(`<script>var StelliumIFrameMode = true;</script>`)
-
-                    // compile the modified HTML as string
-                    html = $.html()
-                }
-                */
                 callback(null, html)
                 return
             }

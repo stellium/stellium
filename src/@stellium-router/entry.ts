@@ -5,7 +5,6 @@ import {Application} from 'express'
 import {DynamicRenderer} from '../@stellium-renderer'
 import {AjaxController} from './controllers/ajax/ajax_controller'
 import {SystemSettingsMiddleware} from './middlewares/system_settings'
-import {AnalyticsMiddleware} from './analytics/middleware'
 import {OffersDetailController} from './offers/offers_controller'
 import {CustomRoutesMiddleware} from './custom/index'
 
@@ -68,7 +67,11 @@ export class ApplicationRouter {
         // The Google Universal Analytics middleware depends on system settings to correctly retrieve the client's
         // tracking, do not reposition above the SystemSettingsMiddleware
         // We only want to use this feature when we are not in development and HotPageReload is activated
-        if (!DEVELOPMENT) this.app.use(AnalyticsMiddleware)
+        /**
+         * TODO():
+         * @date - 4/11/17
+         * @time - 11:20 AM
+         */
 
 
         // Request handler for AJAX request made on the front-end

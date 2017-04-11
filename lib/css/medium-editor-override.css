@@ -71,7 +71,7 @@
 }
 
 [mt-image-binding] {
-    color: white;
+    color: white !important;
     border: none;
     z-index: 10;
     padding: 1rem 2rem;
@@ -79,6 +79,11 @@
     letter-spacing: 1px;
     text-transform: uppercase;
     background-color: rgba(0, 0, 0, .54);
+}
+
+[mt-image-binding]:hover {
+    color: black !important;
+    background-color: rgba(255, 255, 255, .54);
 }
 
 [mt-image-binding].bottom-right {

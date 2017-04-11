@@ -65,7 +65,7 @@ export const Monolog = (config: MonologSchema, callback?: Function) => {
     /** Set default severity value */
     config.severity = config.severity || 'severe';
 
-    if (typeof DEVELOPMENT !== 'undefined' && DEVELOPMENT) {
+    if (typeof LOG_ERROR !== 'undefined' && LOG_ERROR) {
 
         /** Console log in development */
         let color = GetErrorColor(config);
