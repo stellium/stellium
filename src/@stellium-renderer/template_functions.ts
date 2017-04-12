@@ -279,6 +279,8 @@ export class TemplateFunctions {
                                   attributes: any = {},
                                   htmlContent: string): string {
 
+        console.log('config.link', config.link)
+
         const basicLinkTemplate = `<a href="${this.getEmbeddedLink(config.link)}">${htmlContent || this.translate(config.text || config.title)}</a>`
 
         const $ = cheerio.load(basicLinkTemplate)
