@@ -4,8 +4,10 @@ import {
     translateCacheUrl,
     CacheKeys,
     ENV,
-    Monolog
+    Monolog,
+    SettingsKeys
 } from '../../@stellium-common'
+const universalAnalytics = require('universal-analytics')
 const redisClient = redis.createClient()
 
 
@@ -40,10 +42,6 @@ export const PageCacheMiddleware = (req, res, next) => {
                 return
             }
 
-            const analyticsVisitor = req.app.get(CacheKeys.UAVisitor)
-
-            analyticsVisitor && analyticsVisitor.page(req.originalUrl).send()
-
             if (req.query.hot) {
                 res.send(JSON.parse(cachedPageMeta))
                 return
@@ -51,6 +49,34 @@ export const PageCacheMiddleware = (req, res, next) => {
 
             // Page exists in cache, return cached version
             res.send(cachedPageMeta)
+
+            if (!DEVELOPMENT) {
+
+                const systemSettings = req.app.get(CacheKeys.SettingsKey)
+
+                const GATrackingIdSettings = systemSettings.find(_setting => _setting.key === SettingsKeys.AnalyticsTrackingID)
+
+                if (GATrackingIdSettings) {
+
+                    universalAnalytics(GATrackingIdSettings.value, req.session.id).pageview(req.originalUrl, err => {
+
+                        if (err) {
+
+                            Monolog({
+                                message: 'Registering visitor for analytics tracking failed',
+                                error: err
+                            })
+                        }
+                    })
+
+                } else {
+
+                    Monolog({
+                        message: 'Analytics Tracking ID was not found while attempting to track analytics data',
+                        error: new Error('Analytics Tracking ID Missing')
+                    })
+                }
+            }
         })
     })
 }

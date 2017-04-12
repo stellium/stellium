@@ -30,6 +30,8 @@ const registerUser = (user: SystemUserSchema, cb: (err: any) => void): void => {
 
     let password = user.password || 'fleava'
 
+    user.email = user.email.toLowerCase()
+
     SystemUserModel.register(new SystemUserModel(user), password, err => cb(err))
 }
 

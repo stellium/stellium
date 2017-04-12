@@ -70,6 +70,12 @@
     outline: none;
 }
 
+[contenteditable]:empty:before {
+    opacity: .54;
+    display: block;
+    content: attr(placeholder);
+}
+
 [mt-image-binding] {
     color: white !important;
     border: none;

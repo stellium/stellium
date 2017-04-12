@@ -29,7 +29,8 @@
         "allowed_roles": [
             1,
             5
-        ]
+        ],
+        "settings_group": "mail"
     },
     {
         "title": "SMTP Port",
@@ -40,7 +41,8 @@
         "allowed_roles": [
             1,
             5
-        ]
+        ],
+        "settings_group": "mail"
     },
     {
         "title": "SMTP use SSL",
@@ -51,7 +53,8 @@
         "allowed_roles": [
             1,
             5
-        ]
+        ],
+        "settings_group": "mail"
     },
     {
         "title": "SMTP auth user",
@@ -62,7 +65,8 @@
         "allowed_roles": [
             1,
             5
-        ]
+        ],
+        "settings_group": "mail"
     },
     {
         "title": "SMTP auth password",
@@ -73,7 +77,8 @@
         "allowed_roles": [
             1,
             5
-        ]
+        ],
+        "settings_group": "mail"
     },
     {
         "title": "Hot Page Reload",
@@ -92,6 +97,7 @@
                 "color": "blue",
                 "description": "Hot Page Reload is an experimental feature. This feature may break some front end functionalities if the theme does not support the hot reload module."
             }
-        ]
+        ],
+        "settings_group": "website"
     }
 ]

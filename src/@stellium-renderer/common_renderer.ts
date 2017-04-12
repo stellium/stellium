@@ -27,7 +27,7 @@ const universalAnalytics = require('universal-analytics')
 const redisClient = redis.createClient()
 
 
-const cachePageData = (req: Request, html) => {
+const cachePageData = (req: Request, html: string, minify = true) => {
 
     // Cache key of where to store the compiled HTML in redis for later retrieval
     let cacheKey = translateCacheUrl(req.app.get(LanguageKeys.CurrentLanguage), req.url)
@@ -48,7 +48,7 @@ const cachePageData = (req: Request, html) => {
         // Save compiled HTML to memory
         redisClient.set(
             cacheKey,
-            minifyTemplate(html)
+            minify ? minifyTemplate(html) : html
         )
     })
 }
@@ -149,7 +149,12 @@ export const CommonRenderer = (req: Request,
                 return
             }
 
-            if (!iFrameMode && !DEVELOPMENT) {
+
+            // Whether the request was made to stimulate page caching
+            const cacheHeader = req.header('Stellium-Cache')
+            const cacheRequest = cacheHeader && cacheHeader === 'true'
+
+            if (!iFrameMode && !DEVELOPMENT && cacheRequest) {
 
                 const GATrackingIdSettings = systemSettings.find(_setting => _setting.key === SettingsKeys.AnalyticsTrackingID)
 
@@ -198,34 +203,26 @@ export const CommonRenderer = (req: Request,
                 if (req.query.hot) {
 
                     // Extracts the html inside the hot container only, stripping anything else in the page
-                    const body = $('[mt-hot-container]')
+                    const body = $('[stellium-hot-container]')
 
                     // Get the string value of the hot container DOM
                     const hotContent = body.html()
 
-                    /**
-                     * TODO(opt): Make content length work for real progress loading
-                     * @date - 07 Apr 2017
-                     * @time - 7:16 PM
-                     */
-                    res.set({
-                        'content-type': 'text/html;charset=utf-8',
-                        'content-length': Buffer.byteLength(hotContent, 'utf-8'),
-                        // 'transfer-encoding': ''
-                    })
-
                     const pageTitle = pageData.page.title[req.app.get(LanguageKeys.CurrentLanguage)]
 
-                    const hotContentMeta = {
+                    let hotContentMeta = {
                         content: hotContent,
                         title: pageTitle,
                         scripts: [],
                         styles: []
                     }
 
+                    // Send un-minified for faster serves, we'll minify it after the request has been sent
                     res.send(hotContentMeta)
 
-                    if (!iFrameMode) cachePageData(req, JSON.stringify(hotContentMeta))
+                    hotContentMeta.content = minifyTemplate(hotContent)
+
+                    if (!iFrameMode) cachePageData(req, JSON.stringify(hotContentMeta), false)
 
                     return
                 }

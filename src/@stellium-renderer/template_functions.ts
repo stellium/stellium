@@ -374,9 +374,9 @@ export class TemplateFunctions {
 
         return {
 
-            HotReloadElement: 'mt-hot-reload',
+            HotReloadElement: 'stellium-hot-element',
 
-            HotReloadWrapper: 'mt-hot-wrapper',
+            HotReloadWrapper: 'stellium-hot-container',
 
             HotReloadLink: 'mt-hot-link',
 
@@ -637,7 +637,7 @@ export class TemplateFunctions {
                 moduleElement.addClass('mt-stellium-module-order')
 
                 // Assign stellium module order number for Stellium medium sorting
-                allElements.attr('mt-stellium-module-order', this._moduleOrder)
+                allElements.not('[mt-input-binding] *, [mt-medium-binding] *').attr('mt-stellium-module-order', this._moduleOrder)
             }
         }
 
@@ -652,9 +652,11 @@ export class TemplateFunctions {
         }
 
 
-        allElements.attr(this._moduleComponentId, '')
+        allElements.not('[mt-input-binding] *, [mt-medium-binding] *').attr(this._moduleComponentId, '')
 
-        if (DEVELOPMENT) allElements.attr('mt-module-template', moduleData.template)
+        if (DEVELOPMENT) {
+            allElements.not('[mt-input-binding] *, [mt-medium-binding] *').attr('mt-module-template', moduleData.template)
+        }
 
 
         const templateAsString = $.html()

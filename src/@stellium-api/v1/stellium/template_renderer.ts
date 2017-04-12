@@ -12,7 +12,7 @@ import {CommonRenderer, ResolveDatabaseDependencies} from '../../../@stellium-re
 const redisClient = redis.createClient()
 
 
-export const StelliumRouter: Router = express.Router()
+export const StelliumTemplateRouter: Router = express.Router()
 
 
 const scanComponentFiles = (cb) => {
@@ -38,7 +38,7 @@ const mapComponentModules = (files, cb) => {
 }
 
 
-StelliumRouter.get('/modules-index', (req, res) => {
+StelliumTemplateRouter.get('/modules-index', (req, res) => {
 
     let indexKey = 'stellium-modules-index'
 
@@ -92,7 +92,9 @@ StelliumRouter.get('/modules-index', (req, res) => {
 })
 
 
-StelliumRouter.post('/prebuild-template', (req, res) => {
+StelliumTemplateRouter.post('/prebuild-template', (req, res) => {
+
+    console.log('req.get("host")', req.get("host"))
 
     let page = req.body
 
@@ -149,6 +151,7 @@ StelliumRouter.post('/prebuild-template', (req, res) => {
                  <link rel="stylesheet" href="c/css/medium-editor.min.css" type="text/css" media="screen" charset="utf-8">
                  <link rel="stylesheet" href="c/css/medium-beagle.min.css" type="text/css" media="screen" charset="utf-8">
                  <link rel="stylesheet" href="c/css/medium-editor-override.css" type="text/css" charset="utf-8">
+                 <link rel="stylesheet" href="c/css/font-awesome.min.css" type="text/css" charset="utf-8">
                  <script src="c/js/input-bindings.js" type="text/javascript" async="true" defer="true"></script>
             `
 

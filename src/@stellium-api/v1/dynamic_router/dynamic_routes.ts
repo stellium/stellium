@@ -87,25 +87,6 @@ const deletePageCache = (model) => {
 }
 
 
-const filterSettingsForUser = (collection: any[], request: Request, response: Response) => {
-
-    const authRole = request.user.role_id
-
-    const filteredSettings = collection.filter(_set => {
-
-        // Master Admin can see all system settings
-        if (authRole === 0) return true
-
-        return (_set.allowed_roles.includes(request.user.role_id) || request.user.role_id <= 1)
-    })
-
-    response.send(filteredSettings)
-
-    // Cache query result to redis
-    CacheQueryResult(request, filteredSettings)
-}
-
-
 const cleanUserByRole = (collection: any[], request: Request, response: Response) => {
 
     let filteredUsers = collection.map(_user => {
@@ -203,6 +184,7 @@ export const DynamicRoutes: DynamicRouteSchema[] = [
                     {method: 'get', role_id: [1, 2, 5]},
                 ]
             },
+            /*
             {
                 route: 'settings',
                 model: SystemSettingsModel,
@@ -219,6 +201,7 @@ export const DynamicRoutes: DynamicRouteSchema[] = [
                     {method: 'update', hook: deletePageCache},
                 ]
             }
+            */
         ]
     }
 ]

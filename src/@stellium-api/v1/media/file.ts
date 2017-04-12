@@ -8,6 +8,7 @@ import * as imageSize from 'image-size'
 import {Router} from "express"
 import {MediaPath, Monolog, StoragePath} from '../../../@stellium-common'
 import {MediaFileModel} from '../../../@stellium-database'
+import {FileUsageCheck} from './file_usage_check'
 
 
 export const FilesRouter: Router = express()
@@ -16,13 +17,18 @@ export const FilesRouter: Router = express()
 const TempPath = path.resolve(StoragePath, '.tmp')
 
 
+const getFileExtension = (fileName) => {
+    return fileName.split('/')[1]
+}
+
+
 const storage = multer.diskStorage({
     // Temporary destination for file uploads
     destination: (req, file, cb) => mkdirp(TempPath, err => cb(err, TempPath))
-});
+})
 
 
-const upload = multer({storage: storage});
+const upload = multer({storage: storage})
 
 
 FilesRouter.get('/', (req, res) => {
@@ -34,31 +40,16 @@ FilesRouter.get('/', (req, res) => {
             Monolog({
                 message: 'MongoDB failed to index media collection',
                 error: err
-            });
+            })
 
-            res.status(500).send('Internal Server Error');
+            res.status(500).send('Internal Server Error')
 
-        } else res.send(files);
-    });
-});
+        } else res.send(files)
+    })
+})
 
 
-FilesRouter.get('/:fileId', (req, res) => {
-
-    MediaFileModel.findById(req.param('fileId'), (err, file) => {
-
-        if (err) {
-
-            Monolog({
-                message: 'Failed to retrieve file document',
-                error: err
-            });
-
-            res.status(500).send('Internal Server Error');
-
-        } else res.send(file);
-    });
-});
+FilesRouter.get('/usage', FileUsageCheck)
 
 
 /**
@@ -87,7 +78,7 @@ const CheckForConflictingFile = (path: string, cb?: (err: any) => void): void =>
             return
         }
         // There is no error so a conflicting file exists, force error in callback
-        cb(true);
+        cb(true)
     })
 }
 
@@ -128,7 +119,7 @@ FilesRouter.post('/', upload.single('file'), (req, res) => {
              * @date - 17 Jan 2017
              * @time - 1:25 PM
              */
-            res.status(309).send('A file with the same name already exists. Please change your file\'s name and try again.');
+            res.status(309).send('A file with the same name already exists. Please change your file\'s name and try again.')
             return
         }
 
@@ -187,6 +178,24 @@ FilesRouter.post('/', upload.single('file'), (req, res) => {
 })
 
 
+FilesRouter.get('/:fileId', (req, res) => {
+
+    MediaFileModel.findById(req.params['fileId'], (err, file) => {
+
+        if (err) {
+
+            Monolog({
+                message: 'Failed to retrieve file document',
+                error: err
+            })
+
+            res.status(500).send('Internal Server Error')
+
+        } else res.send(file)
+    })
+})
+
+
 /**
  * Replaces a file with a new one
  *
@@ -200,31 +209,31 @@ FilesRouter.delete('/:fileId', (req, res) => {
 
     MediaFileModel.findById(req.params['fileId'], (err, _file) => {
 
-        if (err) return res.status(500).send('Error deleting file');
+        if (err) return res.status(500).send('Error deleting file')
 
         fs.unlink(path.resolve(MediaPath, _file['url']), (err) => {
 
             if (err) {
 
-                console.log('error removing file', err);
+                console.log('error removing file', err)
 
-                return res.status(500).send('An error occurred while trying to delete the selected file.');
+                return res.status(500).send('An error occurred while trying to delete the selected file.')
             }
 
             _file.remove((err) => {
 
                 if (err) {
 
-                    console.log('error removing file', err);
+                    console.log('error removing file', err)
 
-                    return res.status(500).send('An error occurred while trying to delete the file from the database');
+                    return res.status(500).send('An error occurred while trying to delete the file from the database')
                 }
 
-                res.send('File has been deleted successfully.');
+                res.send('File has been deleted successfully.')
             })
-        });
-    });
-});
+        })
+    })
+})
 
 
 const clearTempFolder = () => {
@@ -240,26 +249,23 @@ const clearTempFolder = () => {
                     Monolog({
                         message: 'Error deleting file in `clearTempFolder()`',
                         error: err
-                    });
+                    })
                 }
-            });
-        });
-    });
-};
+            })
+        })
+    })
+}
+
 
 const checkMultipleFiles = (files, cb) => {
 
     files.forEach(file => {
 
         // TODO(boris): wrong path, here is temp path but should check final path
-        let fileExist = fs.statSync(file.path);
+        let fileExist = fs.statSync(file.path)
 
-        if (fileExist) return cb(new Error('File exists'), false);
-    });
+        if (fileExist) return cb(new Error('File exists'), false)
+    })
 
-    cb(null, true);
-};
-
-const getFileExtension = (fileName) => {
-    return fileName.split('/')[1];
-};
+    cb(null, true)
+}

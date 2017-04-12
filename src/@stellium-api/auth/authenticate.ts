@@ -28,6 +28,8 @@ const findUserByEmail = (password: string,
                          email: string,
                          cb: (err: any, credentials?: CredentialsData) => void): void => {
 
+    email = email.toLowerCase()
+
     SystemUserModel
     .findOne({email, deleted_at: null})
     .exec((err, user) => {
@@ -41,6 +43,7 @@ const findUserByEmail = (password: string,
 
 
 const authenticateUserDocument = (credentials: CredentialsData, cb: (err: any, user?: MongooseSystemUserDocument) => void): void => {
+
     credentials.user.authenticate(credentials.password, (err, user) => {
         if (!user) {
             cb(AuthError.Mismatch)
@@ -62,7 +65,7 @@ const signJwtToken = (user: MongooseSystemUserDocument): string => {
 const LoginController = (req, res) => {
 
     async.waterfall([
-        async.apply(findUserByEmail, req.body.password, req.body.email),
+        async.apply(findUserByEmail, req.body.password, req.body.email.toLowerCase()),
         authenticateUserDocument
     ], (err, user: MongooseSystemUserDocument) => {
 
@@ -112,11 +115,29 @@ AuthenticationRouter.delete('/', (req, res) => {
         message: 'Logged out'
     })
 
-    SystemUserModel.findOne({email: req.query._e}, (err, user) => {
+    const email = req.query._e.toLowerCase()
+
+    if (!email || email === 'lost') {
+        Monolog({
+            message: 'User attempting to log out lost credentials',
+            severity: 'moderate'
+        })
+        return
+    }
+
+    SystemUserModel.findOne({email: email}, (err, user) => {
 
         if (err) {
             Monolog({
-                message: 'Error while trying to log out user, ' + req.query._e
+                message: 'Error while trying to log out user, ' + email
+            })
+            return
+        }
+
+        if(user) {
+            Monolog({
+                message: 'User not found while attempting to update their last login date',
+                severity: 'moderate'
             })
             return
         }

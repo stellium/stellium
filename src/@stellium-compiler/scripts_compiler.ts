@@ -71,8 +71,21 @@ const compileScript = (_bluePrint, cb: (err: any) => void): void => {
 
                     Copy(path.resolve(SystemRootPath, 'lib', 'css'), path.resolve(CachePath, 'css'), err => {
 
-                        console.log(colors.green(`Finished compiling ${_bluePrint.file_name}`))
-                        cb(err)
+                        console.log('Finished moving CSS assets')
+
+                        mkdirp(path.resolve(CachePath, 'fonts'), err => {
+
+                            if (err) {
+                                cb(err)
+                                return
+                            }
+
+                            Copy(path.resolve(SystemRootPath, 'lib', 'fonts'), path.resolve(CachePath, 'fonts'), err => {
+
+                                console.log(colors.green(`Finished moving fonts assets`))
+                                cb(err)
+                            })
+                        })
                     })
                 })
             })
