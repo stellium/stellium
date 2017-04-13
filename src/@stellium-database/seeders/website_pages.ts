@@ -7,12 +7,12 @@ import {WebsiteNavigationGroupModel} from '../models/website_navigation_group'
 
 const removePages = (cb: (err: any) => void): void => {
     WebsitePageModel.remove({}, err => cb(err))
-};
+}
 
 
 const getDefaultNavigation = (user, cb) => {
-    WebsiteNavigationGroupModel.findOne({}, (err, nav) => cb(err, nav, user));
-};
+    WebsiteNavigationGroupModel.findOne({}, (err, nav) => cb(err, nav, user))
+}
 
 
 const iterateAndSavePages = (navGroup, user, cb) => {

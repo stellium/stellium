@@ -63,7 +63,7 @@ export interface DynamicRouteSchema {
 }
 
 
-const deletePageCache = (model) => {
+export const deletePageCache = () => {
 
     redisClient.select(ENV.redis_index, err => {
 
@@ -156,10 +156,18 @@ export const DynamicRoutes: DynamicRouteSchema[] = [
                 route: 'pages',
                 model: WebsitePageModel,
                 methods: [
-                    {method: 'index'},
-                    {method: 'get'},
-                    {method: 'create', hook: deletePageCache, role_id: [1, 2, 3, 5]},
-                    {method: 'update', hook: deletePageCache, role_id: [1, 2, 3, 5]},
+                    {
+                        method: 'index'
+                    },
+                    {
+                        method: 'get'
+                    },
+                    // {method: 'create', hook: deletePageCache, role_id: [1, 2, 3, 5]},
+                    {
+                        method: 'update',
+                        hook: deletePageCache,
+                        role_id: [1, 2, 3, 5]
+                    },
                 ]
             }
         ]

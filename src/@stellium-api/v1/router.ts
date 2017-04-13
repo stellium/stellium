@@ -8,6 +8,7 @@ import {DynamicApiRouter} from './dynamic_router'
 import {ApiCacheMiddleware} from './resource_cache'
 import {DashboardRouter} from './dashboard/index'
 import {SystemBundleRouter} from './system/index'
+import {WebsiteBundleRouter} from './website/index'
 
 
 export const V1Router: Router = express.Router();
@@ -23,5 +24,7 @@ V1Router.use('/dashboard', DashboardRouter)
 V1Router.use('/media', MediaBundleRouter)
 
 V1Router.use('/system', SystemBundleRouter)
+
+V1Router.use('/website', WebsiteBundleRouter)
 
 V1Router.use(DynamicApiRouter)
