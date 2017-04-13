@@ -30,7 +30,7 @@ export const ResolvePageDocument = (url: string, language: string, cb: (err: any
 
     } else {
         WebsitePageModel
-        .findOne({[`url.${language}`]: url})
+        .findOne({[`url.${language}`]: url, status: true})
         .populate({
             path: 'navigation_group',
             populate: {
