@@ -61,26 +61,22 @@ export class ApplicationServer {
 
     constructor() {
 
-        (<any>mongoose).Promise = global.Promise
-        mongoose.connect('mongodb://localhost/' + ENV.database_name)
-
         this.configure()
-
-        this._attachRoutes()
     }
+
 
     configure() {
 
+        (<any>mongoose).Promise = global.Promise
+        mongoose.connect('mongodb://localhost/' + ENV.database_name)
+
         // enable gzip compression
         this.app.use(compression())
-    }
-
-
-    private _attachRoutes() {
 
         // Use logger in development mode
         if (DEVELOPMENT) this.app.use(logger('dev'))
 
+        // Initialise API Routes
         new ApiRouter(this.app)
 
         // Disable iFrame mode outside of the API router
@@ -105,10 +101,10 @@ export class ApplicationServer {
 
         this.app.use(session(_session))
 
-        // Template resource routes for dynamic pages
+        // Template resource routes for dynamic pages rendering
         new ApplicationRouter(this.app)
 
-        // Error handler for 404 and 500
+        // HTTP Error handler
         new ErrorsHandler(this.app)
     }
 }

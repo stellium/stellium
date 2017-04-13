@@ -31,18 +31,19 @@ const findUserByEmail = (password: string,
     email = email.toLowerCase()
 
     SystemUserModel
-    .findOne({email, deleted_at: null})
-    .exec((err, user) => {
-        if (!user) {
-            cb(AuthError.NotFound)
-            return
-        }
-        cb(err, {password, user})
-    })
+        .findOne({email, deleted_at: null})
+        .exec((err, user) => {
+            if (!user) {
+                cb(AuthError.NotFound)
+                return
+            }
+            cb(err, {password, user})
+        })
 }
 
 
-const authenticateUserDocument = (credentials: CredentialsData, cb: (err: any, user?: MongooseSystemUserDocument) => void): void => {
+const authenticateUserDocument = (credentials: CredentialsData,
+                                  cb: (err: any, user?: MongooseSystemUserDocument) => void): void => {
 
     credentials.user.authenticate(credentials.password, (err, user) => {
         if (!user) {
@@ -62,7 +63,7 @@ const signJwtToken = (user: MongooseSystemUserDocument): string => {
 }
 
 
-const LoginController = (req, res) => {
+AuthenticationRouter.post('/', (req, res) => {
 
     async.waterfall([
         async.apply(findUserByEmail, req.body.password, req.body.email.toLowerCase()),
@@ -76,41 +77,44 @@ const LoginController = (req, res) => {
                 return
             }
 
-            res.status(500).send('Internal Server Error: Sorry, there seems to be a problem while logging you in.')
+            res.status(500).send()
             return
         }
 
+        // If the user's status is false, it has been disabled by a super admin
+        // disallow login for that account
         if (!user.status) {
             res.status(401).send('Your account has been disabled by your administrator.')
             return
         }
 
+        // Removes hidden or unnecessary fields from the user object
         const pristineUser = CleanUser(user._doc)
 
+        // Send the response before updating the last_login date
         res.send({
             user: pristineUser,
             token: signJwtToken(pristineUser)
         })
 
+        // async
         user.last_login = Date.now()
 
         user.save(err => {
             if (err) {
                 Monolog({
                     message: 'Error while attempting to tag user\'s last login date',
-                    error: err
+                    error: err,
                 })
             }
         })
     })
-}
-
-
-AuthenticationRouter.post('/', LoginController)
+})
 
 
 AuthenticationRouter.delete('/', (req, res) => {
 
+    // Early respond as the rest of this call should be asynchronous
     res.send({
         message: 'Logged out'
     })
@@ -129,12 +133,13 @@ AuthenticationRouter.delete('/', (req, res) => {
 
         if (err) {
             Monolog({
-                message: 'Error while trying to log out user, ' + email
+                message: 'Error finding user while trying to log out. User: ' + email,
+                severity: 'moderate'
             })
             return
         }
 
-        if(user) {
+        if (user) {
             Monolog({
                 message: 'User not found while attempting to update their last login date',
                 severity: 'moderate'
@@ -157,10 +162,13 @@ AuthenticationRouter.delete('/', (req, res) => {
 
 AuthenticationRouter.get(
     '/self',
-    // Attach JWT middleware for this route to correctly retrieve the user object from the request
+    // Attach JWT middleware for this route to correctly
+    // retrieve the user object from the request
     ejwt({secret: ENV.secret}),
     (req, res) => {
+
         SystemUserModel.findById(req.user._id, (err, user) => {
+
             if (err) {
                 res.status(500).send('Internal Server Error')
                 Monolog({
@@ -169,10 +177,12 @@ AuthenticationRouter.get(
                 })
                 return
             }
+
             if (!user) {
                 res.status(401).send('Expired or need refresh')
                 return
             }
+
             res.send(user)
         })
     }
