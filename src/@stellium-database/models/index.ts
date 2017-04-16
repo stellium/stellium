@@ -1,5 +1,6 @@
 export {BlogPostModel, MongooseBlogPostSchema} from './blog_post'
 export {CustomCollectionModel, MongooseCustomCollectionSchema} from './custom_collection'
+export {CustomCollectionBlueprintModel} from './custom_collection_blueprint'
 export {EcommerceCartModel, MongooseEcommerceCartSchema} from './ecommerce_cart'
 export {EcommerceOrderModel, MongooseEcommerceOrderSchema} from './ecommerce_order'
 export {EcommerceProductModel, MongooseEcommerceProductSchema} from './ecommerce_product'

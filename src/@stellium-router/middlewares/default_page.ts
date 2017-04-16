@@ -36,7 +36,7 @@ export const DefaultPageMiddleware = (req, res, next) => {
             // current request
             if (defaultUrl) {
 
-                if (DEVELOPMENT) console.log('defaultUrl', defaultUrl)
+                if (LOG_ERRORS) console.log('defaultUrl', defaultUrl)
 
                 // current request instance
                 req.url = '/' + defaultUrl
@@ -51,8 +51,8 @@ export const DefaultPageMiddleware = (req, res, next) => {
                     .select('url')
                     .exec((err, page) => {
 
-                        if (DEVELOPMENT) console.log('page.url', page.url)
-                        if (DEVELOPMENT) console.log('currentLanguage', currentLanguage)
+                        if (LOG_ERRORS) console.log('page.url', page.url)
+                        if (LOG_ERRORS) console.log('currentLanguage', currentLanguage)
 
                         if (err) {
                             res.sendStatus(500)
@@ -87,8 +87,6 @@ export const DefaultPageMiddleware = (req, res, next) => {
 
                         // Assign default URL to current request
                         req.url = '/' + urlFromLang
-
-                        if (DEVELOPMENT) console.log('req.url', req.url)
 
                         // Forward request with the overridden URL
                         next()

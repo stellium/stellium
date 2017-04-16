@@ -1,5 +1,6 @@
 export * from './_common'
 export {BlogPostSchema} from './blog_post'
+export {CustomCollectionBlueprintSchema} from './custom_collection_blueprint'
 export {CustomCollectionSchema} from './custom_collection'
 export {EcommerceCartSchema} from './ecommerce_cart'
 export {

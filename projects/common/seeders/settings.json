@@ -1,26 +1,5 @@
 [
     {
-        "title": "Google Analytics View ID",
-        "key": "analytics_view_id",
-        "value": "146874601",
-        "type": "text",
-        "description": "Analytics view ID obtained from the Google Analytics Dashboard to view your website's analytical data on the Stellium dashboard",
-        "allowed_roles": [
-            1,
-            2,
-            5
-        ],
-        "messages": [
-            {
-                "match": "exact",
-                "value": "",
-                "color": "red",
-                "description": "Leaving this value blank will have decremental effects on your website's page analytics. Page views and other visitor activities will not be tracked."
-            }
-        ],
-        "settings_group": "analytics"
-    },
-    {
         "title": "SMTP Host",
         "key": "smtp_host",
         "value": "smtp.gmail.com",
@@ -83,9 +62,9 @@
     {
         "title": "Hot Page Reload",
         "key": "hot_page_reload",
-        "value": true,
+        "value": false,
         "type": "boolean",
-        "description": "Turbo charge your visitor's experience by serving your website pages even faster. Uses Stellium's sophisticated caching and rendering mechanism to serve pages in near real-time, no page reloads!",
+        "description": "Eliminate page reload by serving content through Stellium's Hot Page Reload Module",
         "allowed_roles": [
             1,
             5
@@ -94,10 +73,11 @@
             {
                 "match": "exact",
                 "value": true,
-                "color": "blue",
-                "description": "Hot Page Reload is an experimental feature. This feature may break some front end functionalities if the theme does not support the hot reload module."
+                "color": "red",
+                "description": "Hot Page Reload is an experimental feature. This feature may break some website functionality if the theme does not support the hot reload module."
             }
         ],
+        "cache_dependencies": ["website_pages", "blog_posts"],
         "settings_group": "website"
     }
 ]

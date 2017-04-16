@@ -33,7 +33,7 @@ module.exports = function (env) {
 	})
 
 
-	Object.defineProperty(global, 'LOG_ERROR', {
+	Object.defineProperty(global, 'LOG_ERRORS', {
 		get: () => env.log_errors
 	})
 

@@ -19,7 +19,7 @@ export function updateModelDocument(model: Model<Document>,
 
         let updatedModel = req.body
 
-        updatedModel.updated_at = Date.now()
+        updatedModel.updated_at = new Date
 
         model
         .findByIdAndUpdate(req.params.modelId, req.body)
@@ -36,7 +36,14 @@ export function updateModelDocument(model: Model<Document>,
 
             res.send({message: 'Document has been updated successfully'})
 
-            if (config.hook) config.hook(updatedModel)
+            if (config.hook) {
+
+                // Ensure that the hook property may contain
+                // a single or an array of hooks
+                const hooks = [].concat([], config.hook)
+
+                hooks.forEach(_hook => config.hook(updatedModel))
+            }
 
             // Clear all resource cache as collection has changed
             ClearCacheValueByRequest(req)

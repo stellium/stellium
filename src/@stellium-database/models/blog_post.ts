@@ -3,7 +3,7 @@ import {BlogPostSchema} from '../../@stellium-common'
 
 
 export interface MongooseBlogPostSchema extends BlogPostSchema, mongoose.Document {
-    _id: any;
+    _id: any
 }
 
 

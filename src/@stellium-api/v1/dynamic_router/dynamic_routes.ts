@@ -5,13 +5,12 @@ import {
     BlogPostModel,
     WebsitePageModel,
     SystemUserModel,
-    SystemSettingsModel
 } from '../../../@stellium-database'
-import {CacheQueryResult} from '../resource_cache'
-import {ENV, Monolog} from '../../../@stellium-common'
+import {CacheQueryResult, DeletePageCache} from '../resource_cache'
+import {ENV, Monolog, CacheKeys} from '../../../@stellium-common'
 
 
-const redisClient = redis.createClient()
+const redisClient = redis.createClient({db: '' + ENV.redis_index})
 
 
 export interface DynamicRouteMethod {
@@ -27,18 +26,18 @@ export interface DynamicRouteMethod {
      * the page goes through the renderer and gets updated before being saved to redis
      * cache again
      *
-     * function deletePageCache() {
+     * function DeletePageCache() {
      *     redis.flushAll()
      * }
      *
      * ...route config:
      * {
      *     method: 'create',
-     *     hook: deletePageCache,
+     *     hook: DeletePageCache,
      *     role_id: 1
      * }
      *
-     * The `deletePageCache` function will be executed when the page has been store to the database
+     * The `DeletePageCache` function will be executed when the page has been store to the database
      * thus, invalidating the page cache
      */
     hook?: any
@@ -60,30 +59,6 @@ export interface DynamicRouteChildSchema {
 export interface DynamicRouteSchema {
     route: string
     children: DynamicRouteChildSchema[]
-}
-
-
-export const deletePageCache = () => {
-
-    redisClient.select(ENV.redis_index, err => {
-
-        if (err) {
-            Monolog({
-                message: 'Unable to select redis database at index ' + ENV.redis_index,
-                error: err,
-                severity: 'severe'
-            })
-            return
-        }
-
-        // Scans all keys for cached page documents
-        redisClient.keys('page_cache_address*', (err, keys) => {
-            // Loops through the matching keys and delete one-by-one
-            // this is only necessary when creating or editing pages to make sure
-            // everything is in sync
-            keys.forEach(_key => redisClient.del(_key))
-        })
-    })
 }
 
 
@@ -112,8 +87,9 @@ const cleanUserByRole = (collection: any[], request: Request, response: Response
 
     // If not MASTER admin
     if (request.user.role_id > 0) {
+
         // Remove master admin from request if the authenticated user requesting
-        // is not the master himself
+        // is not the `master` himself
         filteredUsers = filteredUsers.filter(_user => _user.role_id !== 0)
     }
 
@@ -126,7 +102,7 @@ const cleanUserByRole = (collection: any[], request: Request, response: Response
 
     response.send(filteredUsers)
 
-    // Cache query result to redis
+    // Cache query results to redis
     CacheQueryResult(request, filteredUsers)
 }
 
@@ -141,10 +117,19 @@ export const DynamicRoutes: DynamicRouteSchema[] = [
                 route: 'posts',
                 model: BlogPostModel,
                 methods: [
-                    {method: 'index'},
-                    {method: 'get'},
-                    {method: 'create'},
-                    {method: 'update'}
+                    {
+                        method: 'index'
+                    },
+                    {
+                        method: 'get'
+                    },
+                    {
+                        method: 'create'
+                    },
+                    {
+                        method: 'update',
+                        hook: DeletePageCache,
+                    }
                 ]
             }
         ]
@@ -162,12 +147,12 @@ export const DynamicRoutes: DynamicRouteSchema[] = [
                     {
                         method: 'get'
                     },
-                    // {method: 'create', hook: deletePageCache, role_id: [1, 2, 3, 5]},
+                    // {method: 'create', hook: DeletePageCache, role_id: [1, 2, 3, 5]},
                     {
                         method: 'update',
-                        hook: deletePageCache,
+                        hook: DeletePageCache,
                         role_id: [1, 2, 3, 5]
-                    },
+                    }
                 ]
             }
         ]
@@ -189,27 +174,12 @@ export const DynamicRoutes: DynamicRouteSchema[] = [
                         },
                         filter: cleanUserByRole
                     },
-                    {method: 'get', role_id: [1, 2, 5]},
-                ]
-            },
-            /*
-            {
-                route: 'settings',
-                model: SystemSettingsModel,
-                methods: [
                     {
-                        method: 'index',
-                        query: {
-                            sort: {
-                                order: 1
-                            }
-                        },
-                        filter: filterSettingsForUser
-                    },
-                    {method: 'update', hook: deletePageCache},
+                        method: 'get',
+                        role_id: [1, 2, 5]
+                    }
                 ]
             }
-            */
         ]
     }
 ]

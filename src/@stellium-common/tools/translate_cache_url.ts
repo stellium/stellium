@@ -1,8 +1,9 @@
+import {CacheKeys} from '../keys/cache_keys'
 export const translateCacheUrl = (lang: string, url: string): string => {
 
-    url = url.replace(/^\/+|\/+$/g, '');
+    url = url.replace(/^\/+|\/+$/g, '')
 
-    url = lang + '_' + url;
+    url = lang + '_' + url
 
     const _replaceFromTo = [
         {
@@ -25,11 +26,11 @@ export const translateCacheUrl = (lang: string, url: string): string => {
             from: /%20/,
             to: ''
         }
-    ];
+    ]
 
-    _replaceFromTo.forEach(_rep => url = url.replace(_rep.from, _rep.to));
+    _replaceFromTo.forEach(_rep => url = url.replace(_rep.from, _rep.to))
 
-    url = 'page_cache_address_' + url.toLowerCase();
+    url = CacheKeys.PageCachePrefix + url.toLowerCase()
 
-    return url;
-};
+    return url
+}

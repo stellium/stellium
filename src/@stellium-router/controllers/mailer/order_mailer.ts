@@ -76,7 +76,7 @@ export const OrderMailer = (req, res, items: EcommerceCartSchema[]) => {
                 return
             }
             /** The email was sent successfully, send a response to request */
-            if (DEVELOPMENT) console.log('Success. Email was sent successfully.');
+            if (LOG_ERRORS) console.log('Success. Email was sent successfully.');
         };
         // Send email
         transporter.sendMail(mailData, mailCb);

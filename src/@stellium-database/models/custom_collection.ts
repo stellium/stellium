@@ -8,32 +8,15 @@ export interface MongooseCustomCollectionSchema extends CustomCollectionSchema, 
 
 
 const Schema = new mongoose.Schema({
-    title: {
-        type: mongoose.Schema.Types.Mixed
+    collection_id: mongoose.Schema.Types.ObjectId,
+    meta: {
+        title: mongoose.Schema.Types.Mixed,
+        url: mongoose.Schema.Types.Mixed,
+        meta: mongoose.Schema.Types.Mixed,
     },
-    tooltip: {
-        type: mongoose.Schema.Types.Mixed
-    },
-    order: Number,
-    link: {
-        source: String,
-        url: {
-            type: mongoose.Schema.Types.Mixed
-        },
-    },
-    group_id: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'WebsiteNavigationGroup'
-    },
-    parent_id: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'WebsiteNavigation'
-    },
-    hide: Boolean,
-    new_tab: Boolean,
-    children_ids: [{
-        type: mongoose.Schema.Types.Mixed,
-        ref: 'WebsiteNavigation'
+    content: [{
+        field: String,
+        value: mongoose.Schema.Types.Mixed
     }],
     user_id: {
         type: mongoose.Schema.Types.ObjectId,
@@ -55,12 +38,13 @@ const Schema = new mongoose.Schema({
     toObject: {
         virtuals: true
     }
-});
+})
 
-Schema.virtual('children', {
-    ref: 'WebsiteNavigation',
-    localField: 'children_ids',
+Schema.virtual('parent', {
+    ref: 'CustomCollectionBlueprint',
+    localField: 'collection_id',
     foreignField: '_id',
-});
+    justOne: true
+})
 
 export const CustomCollectionModel = mongoose.model<MongooseCustomCollectionSchema>('CustomCollection', Schema, 'custom_collection');

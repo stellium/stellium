@@ -2,41 +2,11 @@
     {
         "first_name": "Boris",
         "last_name": "Lemke",
-        "image": "zachy.jpg",
+        "image": "avatar.jpg",
         "email": "boris@fleava.com",
         "username": "borisfleava",
         "password": "fleava",
         "role_id": 0,
-        "status": true
-    },
-    {
-        "first_name": "Farid",
-        "last_name": "Shahab",
-        "image": "bieber_fever.jpg",
-        "email": "farid@fleava.com",
-        "username": "faridfleava",
-        "password": "fleava",
-        "role_id": 1,
-        "status": false
-    },
-    {
-        "first_name": "Amanda",
-        "last_name": "",
-        "image": "marg.jpg",
-        "email": "amanda@twenty20services.com",
-        "username": "amanda",
-        "password": "fleava123",
-        "role_id": 2,
-        "status": true
-    },
-    {
-        "first_name": "Peasant",
-        "last_name": "",
-        "image": "avatar.jpg",
-        "email": "peasant@fleava.com",
-        "username": "peasant",
-        "password": "peasant",
-        "role_id": 3,
         "status": true
     }
 ]

@@ -1,31 +1,37 @@
 import * as express from 'express'
-import * as moment from 'moment'
 import {Router} from 'express'
-import {WebsiteNavigationGroupModel} from '../../../@stellium-database/models/website_navigation_group'
-import {Monolog} from '../../../@stellium-common/monolog/monolog'
-import {WebsitePageModel} from '../../../@stellium-database/models/website_page'
-import {deletePageCache} from '../dynamic_router/dynamic_routes'
+import {WebsiteNavigationGroupModel, WebsitePageModel} from '../../../@stellium-database'
+import {Monolog} from '../../../@stellium-common'
+import {DeletePageCache} from '../resource_cache'
 
 
 export const WebsitePagesRouter: Router = express.Router()
-
 
 
 WebsitePagesRouter.post('/', (req, res) => {
 
     let pageData = req.body
 
-    console.log('pageData', pageData)
+    if (LOG_ERRORS) console.log('pageData', pageData)
 
     WebsiteNavigationGroupModel.findOne({}, (err, navGroup) => {
 
+        if (err) {
+            Monolog({
+                message: 'Error while create new page',
+                error: err
+            })
+        }
+
         pageData.navigation_group_id = navGroup._id
 
-        console.log('pageData.navigation_group_id', pageData.navigation_group_id)
+        if (LOG_ERRORS) console.log('pageData.navigation_group_id', pageData.navigation_group_id)
 
+        // Assign user ID of the authenticated user
+        // to the new page document
         pageData.user_id = req.user._id
 
-        console.log('pageData.user_id', pageData.user_id)
+        if (LOG_ERRORS) console.log('pageData.user_id', pageData.user_id)
 
         WebsitePageModel.create(pageData, (err, newPage) => {
 
@@ -43,7 +49,7 @@ WebsitePagesRouter.post('/', (req, res) => {
                 page: newPage
             })
 
-            deletePageCache()
+            DeletePageCache()
         })
     })
 })

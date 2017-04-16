@@ -5,7 +5,7 @@ import {BlogPostModel} from '../models/blog_post'
 
 const removeBlogPosts = (cb: (err: any) => void): void => {
     BlogPostModel.remove({}, err => cb(err))
-};
+}
 
 
 let postIndex = 0

@@ -25,6 +25,8 @@ export const OffersDetailController = (req, res, next) => {
         const pageData = {
             dynamicContent: true,
             meta: {
+                title: post.title,
+                meta: post.meta,
                 image: post.cover.url,
                 og_type: 'article',
                 description: post.meta

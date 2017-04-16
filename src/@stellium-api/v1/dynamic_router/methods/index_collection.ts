@@ -27,8 +27,8 @@ export function getModelCollection(model: Model<ExtendedDocument>,
         if (config && config.query) sortQuery = config.query.sort
 
         // Model info
-        if (DEVELOPMENT) console.log('model.name', model.modelName)
-        if (DEVELOPMENT) console.log('sortQuery', sortQuery)
+        // if (LOG_ERRORS) console.log('model.name', model.modelName)
+        // if (LOG_ERRORS) console.log('sortQuery', sortQuery)
 
         let baseQuery: any = {deleted_at: null}
 

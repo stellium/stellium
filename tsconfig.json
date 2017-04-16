@@ -26,6 +26,8 @@
     ],
     "files": [
         "src/typings.d.ts",
-        "src/@stellium-server/index.ts"
+        "src/@stellium-database/index.ts",
+        "src/@stellium-server/index.ts",
+        "src/@stellium-socket/index.ts"
     ]
 }

@@ -1,9 +1,12 @@
 import * as async from 'async'
+import * as redis from 'redis'
 import * as express from 'express'
 import {Request, Router} from 'express'
-import {SystemSettingsSchema, Monolog} from '../../../@stellium-common'
+import {SystemSettingsSchema, Monolog, ENV, CacheKeys} from '../../../@stellium-common'
 import {SystemSettingsModel} from '../../../@stellium-database'
-import {ClearCacheValueByRequest} from '../resource_cache'
+
+
+const redisClient = redis.createClient({db: ''+ENV.redis_index})
 
 
 export const SystemSettingsRouter: Router = express.Router()
@@ -113,6 +116,8 @@ SystemSettingsRouter.put('/', (req, res) => {
 
     const settingsCollection: SystemSettingsSchema[] = req.body
 
+    // const dependenciesMap = settingsCollection.reduce((_map, _settings) => [].concat(_map, _settings.cache_dependencies), [])
+
     async.map(settingsCollection, saveSettingItem(req), err => {
 
         if (err) {
@@ -126,6 +131,17 @@ SystemSettingsRouter.put('/', (req, res) => {
 
         res.send({message: 'Settings have been saved successfully'})
 
-        ClearCacheValueByRequest(req, ['website'])
+        redisClient.keys(CacheKeys.PageCachePrefix + '*', (err, keys) => {
+
+            keys.forEach(_key => redisClient.del(_key, err => {
+
+                Monolog({
+                    message: 'Error while attempting to delete cache entry for ' + _key,
+                    error: err
+                })
+            }))
+        })
+
+        // ClearCacheValueByRequest(req, dependenciesMap)
     })
 })

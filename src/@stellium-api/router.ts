@@ -3,7 +3,7 @@ import * as bodyParser from 'body-parser'
 import * as passport from 'passport'
 import {Application, Router} from 'express'
 import {V1Router} from './v1/router'
-import {AuthenticationRouter} from './auth/authenticate'
+import {AuthenticationRouter} from './authenticate'
 import {SystemUserModel} from '../@stellium-database'
 import {addStelliumHeaders} from './_lib/cors_middleware'
 import {SystemSettingsMiddleware} from '../@stellium-router'
@@ -26,12 +26,13 @@ export class ApiRouter {
 
     private _configure(): void {
 
+
+        /**
+         * Sets up authentication system with Passport Local
+         */
         passport.use(new LocalStrategy(SystemUserModel.authenticate()))
-
         passport.serializeUser(SystemUserModel.serializeUser())
-
         passport.deserializeUser(SystemUserModel.deserializeUser())
-
         this.router.use(passport.initialize())
 
         this.router.use(bodyParser.json())

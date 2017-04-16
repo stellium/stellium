@@ -13,7 +13,7 @@ export const ResolvePageDocument = (url: string, language: string, cb: (err: any
 
             readSeederFile('navigation', (err, navigation) => {
 
-                if (DEVELOPMENT) console.log('_page.url', url)
+                if (LOG_ERRORS) console.log('_page.url', url)
 
                 let page = pages.filter(_page => _page.url[language] === url)[0]
 
@@ -30,22 +30,22 @@ export const ResolvePageDocument = (url: string, language: string, cb: (err: any
 
     } else {
         WebsitePageModel
-        .findOne({[`url.${language}`]: url, status: true})
-        .populate({
-            path: 'navigation_group',
-            populate: {
-                path: 'navigation'
-            }
-        })
-        .exec((err, page) => {
+            .findOne({[`url.${language}`]: url, status: true})
+            .populate({
+                path: 'navigation_group',
+                populate: {
+                    path: 'navigation'
+                }
+            })
+            .exec((err, page) => {
 
-            if (!page) {
-                cb('not found')
-                return
-            }
+                if (!page) {
+                    cb('not found')
+                    return
+                }
 
-            cb(err, page)
-        })
+                cb(err, page)
+            })
     }
 }
 
@@ -72,12 +72,10 @@ export const DynamicRenderer = (req: express.Request,
                 return
             }
             res.sendStatus(500)
-            if (DEVELOPMENT) {
-                Monolog({
-                    message: 'Error finding page by URL for ' + url,
-                    error: err
-                })
-            }
+            Monolog({
+                message: 'Error finding page by URL for ' + url,
+                error: err
+            })
             return
         }
 

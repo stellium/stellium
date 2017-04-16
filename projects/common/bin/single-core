@@ -4,8 +4,7 @@ const fs = require('fs');
 function initiate(env,
                   app,
                   port,
-                  http,
-                  https,
+                  protocol,
                   onError,
                   onListening) {
 
@@ -15,7 +14,7 @@ function initiate(env,
 
     if (!env.use_ssl) {
 
-        server = http.createServer(app);
+        server = protocol.createServer(app);
 
     } else {
 
@@ -24,11 +23,11 @@ function initiate(env,
             cert: fs.readFileSync(env.ssl_path + (env.crt_file || 'localhost.crt')),
             requestCert: false,
             rejectUnauthorized: false
-        };
+        }
 
-        server = https.createServer(options, app);
+        server = protocol.createServer(options, app);
     }
-
+    
     server.listen(port);
     server.on('error', onError);
     server.on('listening', onListening(server, port));

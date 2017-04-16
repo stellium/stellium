@@ -13,7 +13,7 @@ import {
     MediaPath,
     ViewsPath,
     CachePath,
-    ENV, AppEnvironment,
+    ENV,
     ReservedPageKeys,
     URLTranslator,
     SettingsKeys,
@@ -21,7 +21,8 @@ import {
     Translatable,
     WebsitePageSchema,
     SystemSettingsSchema,
-    WebsitePageModuleSchema
+    WebsitePageModuleSchema,
+    AttributeKeys
 } from '../@stellium-common'
 import ReadWriteStream = NodeJS.ReadWriteStream
 import {toJSON} from "./lib/to_json"
@@ -49,8 +50,11 @@ export interface ModuleCompilerConfig {
 export class TemplateFunctions {
 
 
-    get env(): AppEnvironment {
-        return ENV;
+    get env(): any {
+        return {
+            domain: ENV.stellium_domain,
+            dev: !ENV.production
+        }
     }
 
 
@@ -634,10 +638,10 @@ export class TemplateFunctions {
                 moduleElement.addClass('mt-stellium-module')
 
                 // Assign stellium module order number for Stellium medium sorting
-                moduleElement.addClass('mt-stellium-module-order')
+                moduleElement.addClass(AttributeKeys.ModuleOrder)
 
                 // Assign stellium module order number for Stellium medium sorting
-                allElements.not('[mt-input-binding] *, [mt-medium-binding] *').attr('mt-stellium-module-order', this._moduleOrder)
+                allElements.not('[mt-input-binding] *, [mt-medium-binding] *').attr(AttributeKeys.ModuleOrder, this._moduleOrder)
             }
         }
 

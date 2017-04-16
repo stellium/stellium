@@ -1,0 +1,83 @@
+[
+    {
+        "collection_name": "Offers",
+        "tags": ["offers", "offer", "special"],
+        "meta": {
+            "title": {
+                "en": "Offers"
+            },
+            "url": {
+                "en": "offers"
+            },
+            "meta": {
+                "en": "Special Offers by The Shanti Residence"
+            }
+        },
+        "content": [
+            {
+                "type": "text_short",
+                "label": "Title",
+                "field": "title",
+                "required": true,
+                "translatable": false,
+                "validations": [
+                    {
+                        "length": 255,
+                        "check_case": "max",
+                        "message": "Title must not exceed 255 characters"
+                    }
+                ]
+            },
+            {
+                "type": "media_single",
+                "label": "Cover Image",
+                "field": "cover_image",
+                "required": false,
+                "translatable": false,
+                "validations": [
+                    {
+                        "length": 2048,
+                        "check_case": "max_size",
+                        "message": "Image must not exceed 2,048KB or 2MB"
+                    }
+                ]
+            },
+            {
+                "type": "text_short",
+                "label": "Short Description",
+                "field": "short_description",
+                "required": true,
+                "translatable": false,
+                "validations": [
+                    {
+                        "length": 2048,
+                        "check_case": "max_size",
+                        "message": "Image must not exceed 2,048KB or 2MB"
+                    }
+                ]
+            },
+            {
+                "type": "html",
+                "label": "Content",
+                "field": "content",
+                "required": true,
+                "translatable": false,
+                "validations": []
+            },
+            {
+                "type": "date",
+                "label": "Promo Start",
+                "field": "promo_start",
+                "required": true,
+                "validations": []
+            },
+            {
+                "type": "date",
+                "label": "Promo End",
+                "field": "promo_end",
+                "required": true,
+                "validations": []
+            }
+        ]
+    }
+]

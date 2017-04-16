@@ -1,4 +1,4 @@
 /**
  * Public API main entry
  */
-export {compileScripts} from './scripts_compiler'
+export {CompileScripts, ScriptCompilerBluePrint} from './scripts_compiler'

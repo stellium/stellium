@@ -53,6 +53,7 @@ const Schema = new mongoose.Schema({
         type: String
     },
     settings_group: String,
+    cache_dependencies: [String],
     created_at: {
         type: Date,
         'default': Date.now

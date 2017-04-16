@@ -1,13 +1,26 @@
 export const CacheKeys = {
 
-    SettingsKey: '__mt_system_settings',
+
+    PageCachePrefix: 'mt_view_cache_',
 
 
-    UAVisitor: '__mt_ua_visitor',
+    SettingsKey: 'mt_system_settings',
 
 
-    IFrameMode: '__mt_iframe_mode',
+    UAVisitor: 'mt_ua_visitor',
 
 
-    HotReload: '__mt_hot_reload_enabled'
+    IFrameMode: 'mt_iframe_mode',
+
+
+    HotReload: 'mt_hot_reload_enabled',
+
+
+    AdminTokenPrefix: 'mt_auth_token_',
+
+
+    ClientIDPrefix: 'mt_user_id_',
+
+
+    AdminIDPrefix: 'mt_admin_id_',
 }

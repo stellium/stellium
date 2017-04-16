@@ -15,4 +15,5 @@ export const SettingsKeys = {
     AnalyticsTrackingID: 'analytics_tracking_id',
     AnalyticsViewID: 'analytics_view_id',
     HotPageReload: 'hot_page_reload',
+    HeadScripts: 'head_scripts',
 }

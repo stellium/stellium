@@ -1,6 +1,7 @@
 import * as redis from 'redis'
 import {Monolog, ENV} from '../../@stellium-common'
 import {NextFunction, Request, RequestHandler, Response} from 'express'
+import {CacheKeys} from '../../@stellium-common'
 
 
 const redisClient = redis.createClient()
@@ -74,7 +75,7 @@ export const ClearCacheValueByRequest = (req: Request, modelNames?: string[]) =>
     // because we are omitting the postId, whether it exists or not (e.g. resource_cache_blog_posts)
     // we can delete all cached starting with resource_cache_blog_posts
     // which will target a collection or a single document cached in redis
-    const [r,c,group, model] = cacheKey.split('_')
+    const [r, c, group, model] = cacheKey.split('_')
 
     redisClient.select(ENV.redis_index, err => {
 
@@ -94,8 +95,15 @@ export const ClearCacheValueByRequest = (req: Request, modelNames?: string[]) =>
         })
 
         if (modelNames) {
-            modelNames.forEach(_name => {
+
+            const flattenedModelNames = modelNames.filter((value, index, self) => self.indexOf(value) === index)
+
+            flattenedModelNames.forEach(_name => {
+
                 redisClient.keys(`*${_name}*`, (err, keys) => {
+
+                    console.log('`*${_name}*`', `*${_name}*`)
+
                     keys.forEach(_key => redisClient.del(_key))
                 })
             })
@@ -130,5 +138,26 @@ export const ApiCacheMiddleware: RequestHandler = (req: Request, res: Response, 
         }
 
         res.send(JSON.parse(cachedData))
+    })
+}
+
+export const DeletePageCache = () => {
+
+    // Scans all keys for cached page documents
+    redisClient.keys(CacheKeys.PageCachePrefix + '*', (err, keys) => {
+
+        // Loops through the matching keys and delete one-by-one
+        // this is only necessary when creating or editing pages and blog posts
+        // to make sure no obsolete pages are served to the visitors
+        keys.forEach(_key => redisClient.del(_key, err => {
+
+            if (err) {
+                // Log error if delete operation fails
+                Monolog({
+                    message: 'Error occurred while attempting to delete page cache for ' + _key,
+                    error: err
+                })
+            }
+        }))
     })
 }

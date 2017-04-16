@@ -1,4 +1,5 @@
 import * as redis from 'redis'
+import * as cheerio from 'cheerio'
 import {
     LanguageKeys,
     translateCacheUrl,
@@ -8,7 +9,7 @@ import {
     SettingsKeys
 } from '../../@stellium-common'
 const universalAnalytics = require('universal-analytics')
-const redisClient = redis.createClient()
+const redisClient = redis.createClient({db: '' + ENV.redis_index})
 
 
 export const PageCacheMiddleware = (req, res, next) => {
@@ -23,60 +24,48 @@ export const PageCacheMiddleware = (req, res, next) => {
     // append `_hot` keyword for hot reloaded content
     if (req.query.hot) cachedKey += '_hot'
 
-    redisClient.select(ENV.redis_index, err => {
 
-        if (err) {
-            Monolog({
-                message: 'Unable to select redis database at index ' + ENV.redis_index,
-                error: err,
-                severity: 'severe'
-            })
-            res.status(500).send('Internal Server Error')
+    redisClient.get(cachedKey, (err, cachedPageMeta) => {
+
+        if (!cachedPageMeta) {
+            next()
             return
         }
 
-        redisClient.get(cachedKey, (err, cachedPageMeta) => {
+        if (req.query.hot) {
+            res.send()
+            return
+        }
 
-            if (!cachedPageMeta) {
-                next()
-                return
+        // Page exists in cache, return cached version
+        res.send(cachedPageMeta)
+
+        if (!DEVELOPMENT) {
+
+            const systemSettings = req.app.get(CacheKeys.SettingsKey)
+
+            const GATrackingIdSettings = systemSettings.find(_setting => _setting.key === SettingsKeys.AnalyticsTrackingID)
+
+            if (GATrackingIdSettings) {
+
+                universalAnalytics(GATrackingIdSettings.value, req.session.id).pageview(req.originalUrl, err => {
+
+                    if (err) {
+
+                        Monolog({
+                            message: 'Registering visitor for analytics tracking failed',
+                            error: err
+                        })
+                    }
+                })
+
+            } else {
+
+                Monolog({
+                    message: 'Analytics Tracking ID was not found while attempting to track analytics data',
+                    error: new Error('Analytics Tracking ID Missing')
+                })
             }
-
-            if (req.query.hot) {
-                res.send(JSON.parse(cachedPageMeta))
-                return
-            }
-
-            // Page exists in cache, return cached version
-            res.send(cachedPageMeta)
-
-            if (!DEVELOPMENT) {
-
-                const systemSettings = req.app.get(CacheKeys.SettingsKey)
-
-                const GATrackingIdSettings = systemSettings.find(_setting => _setting.key === SettingsKeys.AnalyticsTrackingID)
-
-                if (GATrackingIdSettings) {
-
-                    universalAnalytics(GATrackingIdSettings.value, req.session.id).pageview(req.originalUrl, err => {
-
-                        if (err) {
-
-                            Monolog({
-                                message: 'Registering visitor for analytics tracking failed',
-                                error: err
-                            })
-                        }
-                    })
-
-                } else {
-
-                    Monolog({
-                        message: 'Analytics Tracking ID was not found while attempting to track analytics data',
-                        error: new Error('Analytics Tracking ID Missing')
-                    })
-                }
-            }
-        })
+        }
     })
 }

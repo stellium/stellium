@@ -9,8 +9,10 @@ import * as babelify from 'babelify'
 import * as nodeSass from 'node-sass'
 import * as browserify from 'browserify'
 import * as redis from 'redis'
+import * as memoryCache from 'memory-cache'
 import {CachePath, ViewsPath} from "../@stellium-common"
 import ReadWriteStream = NodeJS.ReadWriteStream
+import {AttributeKeys} from '../@stellium-common/keys/renderer_attribute_keys'
 
 
 const redisClient = redis.createClient()
@@ -221,10 +223,10 @@ const _shimHtmlElements = (moduleData: any, isSection: boolean): string => {
         moduleElement.addClass('mt-stellium-module');
 
         // Assign stellium module order number for Stellium medium sorting
-        moduleElement.attr('mt-stellium-module-order', ++this._moduleOrder);
+        moduleElement.attr(AttributeKeys.ModuleOrder, ++this._moduleOrder);
 
         // Assign stellium module order number for Stellium medium sorting
-        moduleElement.addClass('mt-stellium-module-order');
+        moduleElement.addClass(AttributeKeys.ModuleOrder);
     }
 
     allElements.attr(this._moduleComponentId, '');

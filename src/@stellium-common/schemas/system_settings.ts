@@ -8,6 +8,7 @@ export interface SystemSettingsSchema {
     allowed_roles: number[]
     created_at: Date
     updated_at: Date
+    cache_dependencies: string[]
     locked: boolean
     messages: {
         match: string,

@@ -1,21 +1,14 @@
+import * as redis from 'redis'
 import * as async from 'async'
-import * as express from 'express'
 import * as jwt from 'jsonwebtoken'
-import * as ejwt from 'express-jwt'
-import {Router} from 'express'
 import {SystemUserModel, MongooseSystemUserDocument} from '../../@stellium-database'
 import {CleanUser} from './_lib/clean_user'
-import {ENV, Monolog} from '../../@stellium-common'
+import {ENV, Monolog, CacheKeys} from '../../@stellium-common'
+import {CommonErrors} from '../../@stellium-common'
+import {AuthError} from './_lib'
 
 
-enum AuthError {
-    Mismatch = 0,
-    NotFound = 1,
-    Disabled = 3,
-}
-
-
-export const AuthenticationRouter: Router = express.Router()
+const redisClient = redis.createClient({db: ''+ENV.redis_index})
 
 
 interface CredentialsData {
@@ -55,15 +48,29 @@ const authenticateUserDocument = (credentials: CredentialsData,
 }
 
 
-const signJwtToken = (user: MongooseSystemUserDocument): string => {
+const signJwtToken = (user: MongooseSystemUserDocument, cb: (err: any, token?: string) => void): void => {
 
-    return jwt.sign(user, ENV.secret, {
+    const signedToken = jwt.sign(user, ENV.secret, {
         expiresIn: '2d'
+    })
+
+    redisClient.set(CacheKeys.AdminTokenPrefix + user._id, signedToken, (err) => {
+
+        if (err) {
+            cb(AuthError.RedisFailure)
+            Monolog({
+                message: 'Unable to store JWT signed token to redis',
+                error: err
+            })
+            return
+        }
+
+        cb(null, signedToken)
     })
 }
 
 
-AuthenticationRouter.post('/', (req, res) => {
+export const LoginController = (req, res) => {
 
     async.waterfall([
         async.apply(findUserByEmail, req.body.password, req.body.email.toLowerCase()),
@@ -91,14 +98,22 @@ AuthenticationRouter.post('/', (req, res) => {
         // Removes hidden or unnecessary fields from the user object
         const pristineUser = CleanUser(user._doc)
 
-        // Send the response before updating the last_login date
-        res.send({
-            user: pristineUser,
-            token: signJwtToken(pristineUser)
+        signJwtToken(pristineUser, (err, token) => {
+
+            if (err) {
+                res.status(500).send(CommonErrors.InternalServerError + '. Please contact your developer for assistance')
+                return
+            }
+
+            // Send the response before updating the last_login date
+            res.send({
+                token,
+                user: pristineUser
+            })
         })
 
         // async
-        user.last_login = Date.now()
+        user.last_login = new Date
 
         user.save(err => {
             if (err) {
@@ -109,10 +124,10 @@ AuthenticationRouter.post('/', (req, res) => {
             }
         })
     })
-})
+}
 
 
-AuthenticationRouter.delete('/', (req, res) => {
+export const LogoutController = (req, res) => {
 
     // Early respond as the rest of this call should be asynchronous
     res.send({
@@ -139,7 +154,7 @@ AuthenticationRouter.delete('/', (req, res) => {
             return
         }
 
-        if (user) {
+        if (!user) {
             Monolog({
                 message: 'User not found while attempting to update their last login date',
                 severity: 'moderate'
@@ -147,43 +162,46 @@ AuthenticationRouter.delete('/', (req, res) => {
             return
         }
 
-        user.last_login = Date.now()
-
-        user.save(err => {
-            if (err) {
-                Monolog({
-                    message: 'Error while attempting to tag user\'s last login date after logout',
-                    error: err
-                })
-            }
-        })
+        // Deletes and invalidates token from cache db
+        redisClient.del(CacheKeys.AdminTokenPrefix + user._id)
     })
-})
+}
 
-AuthenticationRouter.get(
-    '/self',
-    // Attach JWT middleware for this route to correctly
-    // retrieve the user object from the request
-    ejwt({secret: ENV.secret}),
-    (req, res) => {
 
-        SystemUserModel.findById(req.user._id, (err, user) => {
+export const GetSelfController = (req, res) => {
 
-            if (err) {
-                res.status(500).send('Internal Server Error')
-                Monolog({
-                    message: 'Error while attempting to retrieve user from database by JWT Token payload',
-                    error: err
-                })
-                return
-            }
+    SystemUserModel.findById(req.user._id, (err, user) => {
 
-            if (!user) {
-                res.status(401).send('Expired or need refresh')
-                return
-            }
+        if (err) {
+            res.status(500).send(CommonErrors.InternalServerError)
+            Monolog({
+                message: 'Error while attempting to retrieve user from database by JWT Token payload',
+                error: err
+            })
+            return
+        }
 
-            res.send(user)
-        })
-    }
-)
+        if (!user) {
+            res.status(401).send('Expired or need refresh')
+            return
+        }
+
+        res.send(user)
+    })
+}
+
+
+export const RefreshTokenController = (req, res) => {
+
+    const pristineUser = {...req.user, iat: undefined, exp: undefined}
+
+    signJwtToken(pristineUser, (err, token) => {
+
+        if (err) {
+            res.status(500).send(CommonErrors.InternalServerError)
+            return
+        }
+
+        res.send({token})
+    })
+}

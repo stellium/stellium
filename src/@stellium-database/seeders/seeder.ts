@@ -9,6 +9,8 @@ import {NavigationSeeder} from './website_navigation'
 import {PagesSeeder} from './website_pages'
 import {ENV} from '../../@stellium-common'
 import {SettingsSeeder} from './system_settings'
+import {CustomCollectionBlueprintSeeder} from './custom_collection_blueprint'
+import {CustomCollectionSeeder} from './custom_collection'
 
 
 export const DatabaseSeeder = (modules: string[] = []) => {
@@ -43,6 +45,13 @@ export const DatabaseSeeder = (modules: string[] = []) => {
         AsyncTask.push(
             NavigationSeeder,
             PagesSeeder
+        )
+    }
+
+    if (modules.includes('collection')) {
+        AsyncTask.push(
+            CustomCollectionBlueprintSeeder,
+            CustomCollectionSeeder
         )
     }
 

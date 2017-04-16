@@ -1,5 +1,4 @@
-import {WebsiteNavigationGroupSchema} from './website_navigation_group'
-import {Translatable} from './_common'
+import {HasUser, SoftDelete, Translatable} from './_common'
 
 
 /**
@@ -21,26 +20,16 @@ import {Translatable} from './_common'
  *      }
  * ]
  */
-
-
-export interface CustomCollectionSchema {
-    _id?: string;
-    created_at?: Date;
-    updated_at?: Date;
-    deleted_at?: Date;
-    title: Translatable;
-    tooltip: Translatable;
-    order: number;
-    link: {
-        source: string;
-        url: Translatable;
+export interface CustomCollectionSchema extends HasUser, SoftDelete {
+    _id?: string
+    collection_id?: string
+    meta?: {
+        title: Translatable,
+        url: Translatable,
+        meta: Translatable
     }
-    group_id?: string;
-    group?: WebsiteNavigationGroupSchema;
-    parent_id?: string;
-    parent?: CustomCollectionSchema;
-    hide: boolean;
-    new_tab: boolean;
-    children?: CustomCollectionSchema[];
-    user_id?: string;
+    content?: {
+        field: string,
+        value: any
+    }[]
 }

@@ -141,9 +141,6 @@ StelliumTemplateRouter.post('/prebuild-template', (req, res) => {
             // Head script to allow cross origin iFrame access and manipulation using JavaScript
             let iframeGate = `<script>document.domain = "${ENV.stellium_domain}";</script>`
 
-            //noinspection ES6ConvertVarToLetConst,JSUnusedLocalSymbols
-            let iframeMode = `<script>var StelliumIFrameMode = true</script>`
-
             renderedPage = renderedPage.replace(`<base href="/">`, `<base href="http://${ENV.stellium_domain}/">${iframeGate}`)
 
             const iFrameDependencies =

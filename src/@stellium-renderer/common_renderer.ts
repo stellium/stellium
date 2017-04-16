@@ -13,13 +13,13 @@ import {
     translateCacheUrl,
     ViewsPath,
     CacheKeys,
+    SettingsKeys,
+    ENV,
 } from '../@stellium-common'
 import {getShoppingCartContent} from './globals/shopping_cart'
 import {CommonPageData} from './common_interface'
 import {TemplateFunctions} from './template_functions'
 import {toJSON} from './lib/to_json'
-import {SettingsKeys} from '../@stellium-common/keys/settings'
-import {ENV} from '../@stellium-common/development/environment_variable'
 const universalAnalytics = require('universal-analytics')
 
 
@@ -189,6 +189,10 @@ export const CommonRenderer = (req: Request,
 
             const $ = cheerio.load(html)
 
+
+            //noinspection JSUnusedLocalSymbols,ES6ConvertVarToLetConst
+            $('head').append(`<meta name="mt-socket-domain" content="http://socket.${ENV.stellium_domain}" />`)
+
             // If hot reload is enabled we want to process the html template before sending it back to the user
             if (useHotReload) {
 
@@ -231,13 +235,24 @@ export const CommonRenderer = (req: Request,
                 $('body').prepend('<div id="mt-hot-progress-bar"></div>')
 
                 //noinspection ES6ConvertVarToLetConst,JSUnusedLocalSymbols
-                $('head').append(`<script>var HotReloadQueue = 0; var __DEV = ${DEVELOPMENT};</script>`)
+                $('head').prepend(`<script>window.Stellium = {}</script>`)
+                //noinspection JSUnresolvedVariable
+                $('head').append(`<script>window.Stellium.HotReloadQueue = 0; window.Stellium.DEV = ${DEVELOPMENT}; window.Stellium.iFrameMode = ${iFrameMode};</script>`)
+
+            } else {
+
+                //noinspection ES6ConvertVarToLetConst,JSUnusedLocalSymbols
+                $('head').prepend(`<script>window.Stellium = {}</script>`)
+
+                //noinspection JSUnresolvedVariable
+                $('head').append(`<script>window.Stellium.DEV = ${DEVELOPMENT}; window.Stellium.iFrameMode = ${iFrameMode};</script>`)
             }
 
-            // Set development environment if enabled
-            if (DEVELOPMENT) {
-                //noinspection ES6ConvertVarToLetConst,JSUnusedLocalSymbols
-                $('body').prepend(`<span mt-variable-value="__DEV"></span>`)
+            if (!iFrameMode) {
+
+                // Connect to Socket server for real time analytics if not in
+                // iFrame mode
+                $('body').append(`<script src="c/js/socket.js" type="text/javascript" async="true" defer="true"></script>`)
             }
 
             // Extract the rendered and mutated page object as string

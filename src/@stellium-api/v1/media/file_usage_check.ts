@@ -62,8 +62,6 @@ export const FileUsageCheck = (req, res) => {
         // posts: <any>getPostsForScanning
     }, (err, results) => {
 
-        console.log('results', results)
-
         checkPagesForFileUsage(<WebsitePageSchema[]>results.pages, `media/${fileUrl}`, (err, matches) => {
 
             res.send(matches)

@@ -1,0 +1,45 @@
+[
+    {
+        "meta": {
+            "title": {
+                "en": "Beyond the Ordinary"
+            },
+            "meta": {
+                "en": "Beyond the Ordinary"
+            },
+            "url": {
+                "en": "beyond-the-ordinary"
+            }
+        },
+        "content": [
+            {
+                "field": "title",
+                "value": "Beyond the Ordinary, Authentic Balinese Luxury"
+            },
+            {
+                "field": "cover_image",
+                "value": {
+                    "source": "media",
+                    "url": "generic-1-portrait.jpg",
+                    "alt": "Generic Portrait"
+                }
+            },
+            {
+                "field": "short_description",
+                "value": "Enter a realm of pure indulgence where your senses surrender to the sheer beauty of the tropics. The Shanti Residence in the hills of prestigious Nusa Dua will cocoon you from the outside world in an all embracing blanket of authentic Balinese luxury."
+            },
+            {
+                "field": "content",
+                "value": "<p><em>Designed to exacting standards, The Shanti Residence is an exceptional lifestyle retreat that promises a customised stay on the island of Bali. Upon arrival, you will be treated to gracious hospitality that is second to none. An unobtrusive team will be on duty to anticipate all your personal needs with a warm Balinese smile.</em></p>"
+            },
+            {
+                "field": "promo_start",
+                "value": "2017-04-16"
+            },
+            {
+                "field": "promo_end",
+                "value": "2017-04-17"
+            }
+        ]
+    }
+]

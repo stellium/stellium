@@ -3,73 +3,82 @@
 module.exports = function (env) {
 
     require('./globals')(env)
+	require('../../../dist/@stellium-socket/index')
 
     return function (app) {
 
-        const fs = require('fs')
+	    const fs = require('fs')
         const https = require('https')
         const http = require('http')
+        
+        const protocol = env.use_ssl ? https : http
 
         process.env.NODE_ENV = env.production ? 'production' : 'development'
 
         let port = normalizePort(env.port)
 
-        const commonServerConfig = [env, app, port, http, https, onError, onListening]
+        const commonServerConfig = [env, app, port, protocol, onError, onListening]
 
 
         // Whether to use single or multi threaded process
         ////////////////////////////////////////////////////////////
-        if (env.multi_cluster) require('./multi-core')(...commonServerConfig);
-        else require('./single-core')(...commonServerConfig);
+        if (env.multi_cluster) {
+	        
+	        require('./multi-core')(...commonServerConfig)
+	        
+        } else {
+	        
+	        require('./single-core')(...commonServerConfig)
+        }
         ////////////////////////////////////////////////////////////
 
         function onListening(server, port) {
             return () => {
-                console.log('Server listening on port ' + port);
-                let addr = server.address();
+                console.log('Server listening on port ' + port)
+                let addr = server.address()
                 let bind = typeof addr === 'string'
                     ? 'pipe ' + addr
-                    : 'port ' + addr.port;
-                debug('Listening on ' + bind);
+                    : 'port ' + addr.port
+                debug('Listening on ' + bind)
             }
         }
 
 
-        let debug = require('debug')('matter_express:BlogRouter');
+        let debug = require('debug')('matter_express:BlogRouter')
 
 
         function normalizePort(val) {
-            let port = parseInt(val, 10);
+            let port = parseInt(val, 10)
             if (isNaN(port)) {
                 // named pipe
-                return val;
+                return val
             }
             if (port >= 0) {
                 // port number
-                return port;
+                return port
             }
-            return false;
+            return false
         }
 
         function onError(error) {
             if (error.syscall !== 'listen') {
-                throw error;
+                throw error
             }
             let bind = typeof port === 'string'
                 ? 'Pipe ' + port
-                : 'Port ' + port;
+                : 'Port ' + port
             // handle specific listen errors with friendly messages
             switch (error.code) {
                 case 'EACCES':
-                    console.error(bind + ' requires elevated privileges');
-                    process.exit(1);
-                    break;
+                    console.error(bind + ' requires elevated privileges')
+                    process.exit(1)
+                    break
                 case 'EADDRINUSE':
-                    console.error(bind + ' is already in use');
-                    process.exit(1);
-                    break;
+                    console.error(bind + ' is already in use')
+                    process.exit(1)
+                    break
                 default:
-                    throw error;
+                    throw error
             }
         }
     }

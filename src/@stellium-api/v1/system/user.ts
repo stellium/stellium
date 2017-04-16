@@ -309,7 +309,9 @@ UsersRouter.put('/:modelId', (req, res) => {
 
     SystemUserModel.findById(req.params.modelId).exec((err, user) => {
 
-        if (user.role_id === 0) {
+
+        // Only master admin accounts can modify other master admin accounts
+        if (user.role_id === 0 && req.user.role_id > 0) {
             res.status(401).send('The master admin\'s account cannot be modified')
             Monolog({
                 message: 'User attempted to delete master admin account'

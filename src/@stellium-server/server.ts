@@ -1,21 +1,22 @@
 import * as redis from 'redis'
 import * as colors from 'colors'
-import * as rimraf from 'rimraf'
 import * as logger from 'morgan'
 import * as express from 'express'
 import * as mongoose from 'mongoose'
 import * as compression from 'compression'
 import * as session from 'express-session'
 import * as connectRedis from 'connect-redis'
+import * as cookieParser from 'cookie-parser'
+
 
 // @stellium
-import {ENV, CachePath} from '../@stellium-common'
+import {ENV} from '../@stellium-common'
 import {ApplicationRouter} from '../@stellium-router'
 import {ApiRouter} from '../@stellium-api'
 import {ErrorsHandler} from './errors_handler'
-import {compileScripts} from '../@stellium-compiler'
+import {CompileScripts} from '../@stellium-compiler'
 import {CacheKeys} from '../@stellium-common'
-import {ScriptCompilerBluePrint} from '../@stellium-compiler/scripts_compiler'
+import {ScriptCompilerBluePrint} from '../@stellium-compiler'
 
 
 const RedisStore = connectRedis(session)
@@ -28,6 +29,8 @@ export class ApplicationServer {
 
     app: express.Application = express()
 
+
+    //noinspection JSUnusedGlobalSymbols
     /**
      * Bootstrap the application.
      *
@@ -39,20 +42,29 @@ export class ApplicationServer {
 
         return new Promise((resolve, reject) => {
 
-            rimraf(CachePath, () => {
+            console.log(colors.yellow('Flushing redis db for ' + ENV.redis_index))
 
-                compileScripts(scriptBluePrint, err => {
+            redisClient.flushdb(() => {
+
+                const appServer = new ApplicationServer()
+
+                if (!process.argv.includes('--compileScripts')) {
+
+                    resolve(appServer)
+
+                    return
+                }
+
+                CompileScripts(scriptBluePrint, err => {
 
                     if (err) {
+
                         reject(err)
+
                         return
                     }
 
-                    console.log(colors.yellow('Flushing redis db for ' + ENV.redis_index))
-
-                    redisClient.flushdb()
-
-                    resolve(new ApplicationServer())
+                    resolve(appServer)
                 })
             })
         })
@@ -74,7 +86,7 @@ export class ApplicationServer {
         this.app.use(compression())
 
         // Use logger in development mode
-        if (DEVELOPMENT) this.app.use(logger('dev'))
+        if (LOG_ERRORS) this.app.use(logger('dev'))
 
         // Initialise API Routes
         new ApiRouter(this.app)
@@ -89,15 +101,19 @@ export class ApplicationServer {
             secret: ENV.secret,
             resave: false,
             saveUninitialized: true,
-            cookie: {},
-            store: new RedisStore({}),
+            cookie: {
+                httpOnly: false
+            },
+            store: new RedisStore({db: ENV.redis_index}),
         }
 
-        if (!DEVELOPMENT) {
+        if (!DEVELOPMENT && ENV.use_ssl) {
             // required by node session
             this.app.set('trust proxy', 1) // trust first proxy
             _session.cookie['secure'] = true // serve secure cookies
         }
+
+        this.app.use(cookieParser())
 
         this.app.use(session(_session))
 

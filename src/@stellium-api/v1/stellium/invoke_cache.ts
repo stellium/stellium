@@ -6,10 +6,8 @@ import * as rimraf from 'rimraf'
 import * as express from 'express'
 import * as request from 'request'
 import {Router} from 'express'
-import {WebsitePageModel} from '../../../@stellium-database/models/website_page'
-import {SystemLanguageModel} from '../../../@stellium-database/models/system_language'
-import {CachePath} from '../../../@stellium-common/path/common_paths'
-import {Monolog} from '../../../@stellium-common/monolog/monolog'
+import {WebsitePageModel, SystemLanguageModel} from '../../../@stellium-database'
+import {CachePath, Monolog} from '../../../@stellium-common'
 
 
 export const StelliumCacheRouter: Router = express.Router()

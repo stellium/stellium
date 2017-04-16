@@ -3,46 +3,47 @@ import * as callsite from 'callsite'
 import {MonologModel, MonologSchema} from './model'
 
 
-const GetErrorColor = (config: MonologSchema): string => {
+const getErrorColor = (config: MonologSchema): string => {
 
-    let severity = config.severity || 'severe',
-        color = 'red';
+    let severity = config.severity || 'severe'
+
+    let color = 'red'
 
     switch (severity) {
 
         case 'moderate':
-            color = 'yellow';
-            break;
+            color = 'yellow'
+            break
         case 'light':
-            color = 'green';
-            break;
+            color = 'green'
+            break
         case 'ignore':
-            color = 'blue';
-            break;
+            color = 'blue'
+            break
     }
 
-    return color;
-};
+    return color
+}
 
 
-let strLimit = 80;
+let strLimit = 80
 
-const FillRemainingSpace = (length) => {
+const fillRemainingSpace = (length) => {
 
-    let spaces = '';
+    let spaces = ''
 
-    for (let i = 0; i < strLimit - length; i++) spaces += ' ';
+    for (let i = 0; i < strLimit - length; i++) spaces += ' '
 
-    return spaces;
-};
+    return spaces
+}
 
 
-const TruncateMessage = (message: string): string => {
+const truncateMessage = (message: string): string => {
 
-    if (message.length <= strLimit) return `| ${message}${FillRemainingSpace(message.length)} |`;
+    if (message.length <= strLimit) return `| ${message}${fillRemainingSpace(message.length)} |`
 
-    else return `| ${message} |`;
-};
+    else return `| ${message} |`
+}
 
 
 /**
@@ -57,45 +58,49 @@ const TruncateMessage = (message: string): string => {
  */
 export const Monolog = (config: MonologSchema, callback?: Function) => {
 
-    let stack = callsite()[1];
-    /** Get file path where the stack was called from */
-    config.file_path = stack.getFileName();
-    /** Get line number where the stack was called from */
-    config.line_number = stack.getLineNumber();
-    /** Set default severity value */
-    config.severity = config.severity || 'severe';
+    let stack = callsite()[1]
 
-    if (typeof LOG_ERROR !== 'undefined' && LOG_ERROR) {
+    // Get file path where the stack was called from
+    config.file_path = stack.getFileName()
 
-        /** Console log in development */
-        let color = GetErrorColor(config);
+    // Get line number where the stack was called from
+    config.line_number = stack.getLineNumber()
+
+    // Set default severity value
+    config.severity = config.severity || 'severe'
+
+    if (typeof LOG_ERRORS !== 'undefined' && LOG_ERRORS) {
+
+        // Console log in development
+        let color = getErrorColor(config)
 
         /**
          * TODO(production): Make rootPath global
          * @date - 23 Mar 2017
          * @time - 10:08 PM
          */
-        let filePath = config.file_path.replace(StelliumRootPath, '') + ' ' + config.line_number;
+        let filePath = config.file_path.replace(StelliumRootPath, '') + ' ' + config.line_number
 
 
-        console.log();
-        console.log('|----------------------------------------------------------------------------------|'[color]);
-        console.log('|                                      MONOLOG                                     |'[color]);
-        console.log('|----------------------------------------------------------------------------------|'[color]);
-        console.log(TruncateMessage('File      : ' + filePath)[color]);
-        console.log(TruncateMessage('Message   : ' + config.message)[color]);
-        if (config.error) console.log(TruncateMessage('Error     : ' + config.error)[color]);
-        console.log(TruncateMessage('Severity  : ' + config.severity)[color]);
-        console.log('|----------------------------------------------------------------------------------|'[color]);
-        console.log('| In production, this message would\'ve been written to the database instead        |'[color]);
-        console.log('|----------------------------------------------------------------------------------|'[color]);
-        console.log();
+        console.log()
+        console.log('|----------------------------------------------------------------------------------|'[color])
+        console.log('|                                      MONOLOG                                     |'[color])
+        console.log('|----------------------------------------------------------------------------------|'[color])
+        console.log(truncateMessage('File      : ' + filePath)[color])
+        console.log(truncateMessage('Message   : ' + config.message)[color])
+        if (config.error) console.log(truncateMessage('Error     : ' + config.error)[color])
+        console.log(truncateMessage('Severity  : ' + config.severity)[color])
+        console.log('|----------------------------------------------------------------------------------|'[color])
+        console.log('| In production, this message would\'ve been written to the database instead        |'[color])
+        console.log('|----------------------------------------------------------------------------------|'[color])
+        console.log()
     } else {
 
-        /** Save to database in production */
+        // Save to database in production
         MonologModel.create(config, (err, log) => {
-            /** Trigger callback if provided */
-            if (callback && typeof callback === 'function') callback(err, log);
-        });
+
+            // Trigger callback if provided
+            if (callback && typeof callback === 'function') callback(err, log)
+        })
     }
-};
+}

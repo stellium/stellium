@@ -2,6 +2,7 @@ import * as fs from 'fs'
 import * as ncp from 'ncp'
 import * as path from 'path'
 import * as async from 'async'
+import * as rimraf from 'rimraf'
 import * as colors from 'colors'
 import * as mkdirp from 'mkdirp'
 import * as browserify from 'browserify'
@@ -18,24 +19,22 @@ export interface ScriptCompilerBluePrint {
     file_name: string
 }
 
-const SystemRootPath = path.resolve(StelliumRootPath, '../../')
+const systemRootPath = path.resolve(StelliumRootPath, '../../')
 
 
 const scriptBluePrint: ScriptCompilerBluePrint[] = [
-    /*
-     {
-     from: path.resolve(ViewsPath, 'modules/footer/booking'),
-     to: path.resolve(CachePath, 'js/footer/booking'),
-     file_name: 'component.js'
-     },
-     */
     {
-        from: path.resolve(SystemRootPath, 'lib', 'scripts'),
+        from: path.resolve(systemRootPath, 'lib', 'scripts'),
         to: path.resolve(CachePath, 'js'),
         file_name: 'stellium.js'
     },
     {
-        from: path.resolve(SystemRootPath, 'lib', 'scripts'),
+        from: path.resolve(systemRootPath, 'lib', 'scripts'),
+        to: path.resolve(CachePath, 'js'),
+        file_name: 'socket.js'
+    },
+    {
+        from: path.resolve(systemRootPath, 'lib', 'scripts'),
         to: path.resolve(CachePath, 'js'),
         file_name: 'input-bindings.js'
     }
@@ -47,8 +46,6 @@ const compileScript = (_bluePrint, cb: (err: any) => void): void => {
 
         // Compile only if scripts exists
         if (!err) {
-
-            console.log(colors.blue(`Start compiling ${_bluePrint.file_name}`))
 
             mkdirp.sync(_bluePrint.to)
 
@@ -69,9 +66,7 @@ const compileScript = (_bluePrint, cb: (err: any) => void): void => {
                         return
                     }
 
-                    Copy(path.resolve(SystemRootPath, 'lib', 'css'), path.resolve(CachePath, 'css'), err => {
-
-                        console.log('Finished moving CSS assets')
+                    Copy(path.resolve(systemRootPath, 'lib', 'css'), path.resolve(CachePath, 'css'), err => {
 
                         mkdirp(path.resolve(CachePath, 'fonts'), err => {
 
@@ -80,9 +75,8 @@ const compileScript = (_bluePrint, cb: (err: any) => void): void => {
                                 return
                             }
 
-                            Copy(path.resolve(SystemRootPath, 'lib', 'fonts'), path.resolve(CachePath, 'fonts'), err => {
+                            Copy(path.resolve(systemRootPath, 'lib', 'fonts'), path.resolve(CachePath, 'fonts'), err => {
 
-                                console.log(colors.green(`Finished moving fonts assets`))
                                 cb(err)
                             })
                         })
@@ -108,9 +102,20 @@ const compileScript = (_bluePrint, cb: (err: any) => void): void => {
 }
 
 
-export function compileScripts(blueprint: ScriptCompilerBluePrint[] = [], cb?: (err: any) => void): void {
+export function CompileScripts(blueprint: ScriptCompilerBluePrint[] = [], cb?: (err: any) => void): void {
 
     let bluePrintBundle = [].concat(scriptBluePrint, blueprint)
 
-    async.map(bluePrintBundle, compileScript, err => cb(err))
+    // Delete cache Path before compiling scripts to it
+    rimraf(CachePath, () => {
+
+        console.log(colors.blue(`Scripts compiler started`))
+
+        async.map(bluePrintBundle, compileScript, err => {
+
+            console.log(colors.green(`Scripts compiler finished`))
+
+            cb(err)
+        })
+    })
 }
