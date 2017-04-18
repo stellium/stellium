@@ -3,7 +3,7 @@ import {Monolog, CacheKeys, ENV} from '../../@stellium-common'
 import {SystemSettingsModel} from '../../@stellium-database'
 
 
-const redisClient = redis.createClient()
+const redisClient = redis.createClient({db: ENV.redis_index})
 /**
  * Setup the current, default and available languages and saves them into the memory
  * @constructor
@@ -13,62 +13,47 @@ const redisClient = redis.createClient()
  */
 export const SystemSettingsMiddleware = (req, res, next): void => {
 
-    redisClient.select(ENV.redis_index, err => {
-
+    redisClient.get(CacheKeys.SettingsKey, (err, stringSettings) => {
 
         if (err) {
             Monolog({
-                message: 'Unable to select redis database at index ' + ENV.redis_index,
-                error: err,
-                severity: 'severe'
+                message: 'Fatal retrieving cache from settings.',
+                error: err
             })
-            res.status(500).send('Internal Server Error')
+        }
+
+        if (stringSettings) {
+
+            req.app.set(CacheKeys.SettingsKey, JSON.parse(stringSettings))
+
+            next()
+
             return
         }
 
-
-        redisClient.get(CacheKeys.SettingsKey, (err, stringSettings) => {
+        SystemSettingsModel.find({}).lean().exec((err, settings) => {
 
             if (err) {
+                res.status(500).send('An error occurred while rendering this page')
                 Monolog({
-                    message: 'Fatal retrieving cache from settings.',
+                    message: 'Fatal retrieving system settings for request.',
                     error: err
                 })
-            }
-
-            if (stringSettings) {
-
-                req.app.set(CacheKeys.SettingsKey, JSON.parse(stringSettings))
-
-                next()
-
                 return
             }
 
-            SystemSettingsModel.find({}).lean().exec((err, settings) => {
+            redisClient.set(CacheKeys.SettingsKey, JSON.stringify(settings), err => {
 
                 if (err) {
-                    res.status(500).send('An error occurred while rendering this page')
                     Monolog({
-                        message: 'Fatal retrieving system settings for request.',
+                        message: 'Fatal error caching settings.',
                         error: err
                     })
-                    return
                 }
 
-                redisClient.set(CacheKeys.SettingsKey, JSON.stringify(settings), err => {
+                req.app.set(CacheKeys.SettingsKey, settings)
 
-                    if (err) {
-                        Monolog({
-                            message: 'Fatal error caching settings.',
-                            error: err
-                        })
-                    }
-
-                    req.app.set(CacheKeys.SettingsKey, settings)
-
-                    next()
-                })
+                next()
             })
         })
     })

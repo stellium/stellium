@@ -1,6 +1,7 @@
 import * as async from 'async'
-import * as io from 'socket.io'
 import * as redis from 'redis'
+import * as io from 'socket.io'
+import * as colors from 'colors'
 import {
     ENV,
     Monolog,
@@ -8,27 +9,62 @@ import {
     CommonErrors,
     SocketEventKeys
 } from '../@stellium-common'
+import {SocketService} from './socket_service'
+import {IncomingConnectionHandler} from './connection_handler'
+import {GetPageVisitData} from './controllers/page_visit'
+import {GetNumberOfOnlineUsers} from './controllers/online_users'
+import {GetAdminClientSocketId} from './get_admin_id'
 
 
-const redisClient = redis.createClient({db: '' + ENV.redis_index})
+const redisClient = redis.createClient({db: ENV.redis_index})
 
 
-export class SocketServer {
+export const SocketServer = (socket) => {
+
+    socket.on('connection', socket => {
+
+        IncomingConnectionHandler(socket)
+
+        socket.on(SocketEventKeys.RequestUserVisits, () => GetPageVisitData(socket))
+
+        socket.on(SocketEventKeys.RequestUserCount, () => GetNumberOfOnlineUsers(socket))
+
+        SocketService.onMessageRequest$.subscribe(messageTransportData => {
+
+            if (messageTransportData.clientId) {
+
+                GetAdminClientSocketId(messageTransportData.clientId, (err, socketId) => {
+
+                    socket.to(socketId).emit(messageTransportData.eventKey, messageTransportData.payload)
+                })
+
+                return
+            }
+
+            socket.emit(messageTransportData.eventKey, messageTransportData.payload)
+        })
+    })
+}
+
+
+export class SocketServerC {
 
 
     private socket: SocketIO.Server
 
 
     //noinspection JSUnusedGlobalSymbols
-    public static bootstrap(server): SocketServer {
+    public static bootstrap(socketPort): SocketServerC {
 
-        return new SocketServer(server)
+        console.log(colors.blue('Socket server listening on ' + socketPort))
+
+        return new SocketServerC(socketPort)
     }
 
 
-    constructor(private server: any) {
+    constructor(private socketPort: number) {
 
-        this.socket = io(server)
+        this.socket = io.listen(socketPort)
 
         this.socket.on('connection', socket => {
 
@@ -37,6 +73,21 @@ export class SocketServer {
             socket.on(SocketEventKeys.RequestUserVisits, () => this._getPageVisitData())
 
             socket.on(SocketEventKeys.RequestUserCount, () => this._getNumberOfOnlineUsers())
+
+            SocketService.onMessageRequest$.subscribe(messageTransportData => {
+
+                if (messageTransportData.clientId) {
+
+                    this._getAdminClientSocketId(messageTransportData.clientId, (err, socketId) => {
+
+                        this.socket.to(socketId).emit(messageTransportData.eventKey, messageTransportData.payload)
+                    })
+
+                    return
+                }
+
+                this.socket.emit(messageTransportData.eventKey, messageTransportData.payload)
+            })
         })
     }
 
@@ -78,6 +129,22 @@ export class SocketServer {
     }
 
 
+    private _getAdminClientSocketId(userId: string, cb: (err: any, socketId: string) => void): void {
+
+        redisClient.get(CacheKeys.AdminIDPrefix + userId, (err, socketId) => {
+
+            if (err) {
+                Monolog({
+                    message: 'Error retrieving admin client socket ID for ' + userId,
+                    error: err
+                })
+            }
+
+            cb(err, socketId)
+        })
+    }
+
+
     private _adminConnectionHandler(client): void {
 
         // user id must be provided when establishing a connection from client to server
@@ -110,6 +177,7 @@ export class SocketServer {
             }
 
             if (cachedToken !== requestToken) {
+                if (LOG_ERRORS) console.log(colors.red('Token does not match stored token'))
                 // Token does not match the token stored in redis
                 client.emit('exception', {
                     errorMessage: 'Token mismatch'

@@ -6,7 +6,7 @@ import {SystemSettingsSchema, Monolog, ENV, CacheKeys} from '../../../@stellium-
 import {SystemSettingsModel} from '../../../@stellium-database'
 
 
-const redisClient = redis.createClient({db: ''+ENV.redis_index})
+const redisClient = redis.createClient({db: ENV.redis_index})
 
 
 export const SystemSettingsRouter: Router = express.Router()

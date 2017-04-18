@@ -4,24 +4,12 @@ import {NextFunction, Request, RequestHandler, Response} from 'express'
 import {CacheKeys} from '../../@stellium-common'
 
 
-const redisClient = redis.createClient()
+const redisClient = redis.createClient({db: ENV.redis_index})
 
 
 export const CacheQueryResult = (req: Request, data: any) => {
 
-    redisClient.select(ENV.redis_index, err => {
-
-        if (err) {
-            Monolog({
-                message: 'Unable to select redis database at index ' + ENV.redis_index,
-                error: err,
-                severity: 'severe'
-            })
-            return
-        }
-
-        redisClient.set(CreateCacheKeyFromRequest(req), JSON.stringify(data))
-    })
+    redisClient.set(CreateCacheKeyFromRequest(req), JSON.stringify(data))
 }
 
 
@@ -29,20 +17,7 @@ export const GetQueryDataFromCache = (req: Request, cb: (err: any, cachedData?: 
 
     const cacheKey = CreateCacheKeyFromRequest(req)
 
-    redisClient.select(ENV.redis_index, err => {
-
-        if (err) {
-            Monolog({
-                message: 'Unable to select redis database at index ' + ENV.redis_index,
-                error: err,
-                severity: 'severe'
-            })
-            cb(err)
-            return
-        }
-
-        redisClient.get(cacheKey, (err, cachedData) => cb(err, cachedData))
-    })
+    redisClient.get(cacheKey, (err, cachedData) => cb(err, cachedData))
 }
 
 
@@ -77,38 +52,27 @@ export const ClearCacheValueByRequest = (req: Request, modelNames?: string[]) =>
     // which will target a collection or a single document cached in redis
     const [r, c, group, model] = cacheKey.split('_')
 
-    redisClient.select(ENV.redis_index, err => {
 
-        if (err) {
-            Monolog({
-                message: 'Unable to select redis database at index ' + ENV.redis_index,
-                error: err,
-                severity: 'severe'
-            })
-            return
-        }
-
-        // Deletes all index and single collection cache
-        // from redis as data has been changed
-        redisClient.keys(`${r}_${c}_${group}_${model}*`, (err, keys) => {
-            keys.forEach(_key => redisClient.del(_key))
-        })
-
-        if (modelNames) {
-
-            const flattenedModelNames = modelNames.filter((value, index, self) => self.indexOf(value) === index)
-
-            flattenedModelNames.forEach(_name => {
-
-                redisClient.keys(`*${_name}*`, (err, keys) => {
-
-                    console.log('`*${_name}*`', `*${_name}*`)
-
-                    keys.forEach(_key => redisClient.del(_key))
-                })
-            })
-        }
+    // Deletes all index and single collection cache
+    // from redis as data has been changed
+    redisClient.keys(`${r}_${c}_${group}_${model}*`, (err, keys) => {
+        keys.forEach(_key => redisClient.del(_key))
     })
+
+    if (modelNames) {
+
+        const flattenedModelNames = modelNames.filter((value, index, self) => self.indexOf(value) === index)
+
+        flattenedModelNames.forEach(_name => {
+
+            redisClient.keys(`*${_name}*`, (err, keys) => {
+
+                console.log('`*${_name}*`', `*${_name}*`)
+
+                keys.forEach(_key => redisClient.del(_key))
+            })
+        })
+    }
 }
 
 

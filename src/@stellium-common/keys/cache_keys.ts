@@ -23,4 +23,7 @@ export const CacheKeys = {
 
 
     AdminIDPrefix: 'mt_admin_id_',
+
+
+    ModuleShimPrefix: 'mt_template_shim_',
 }

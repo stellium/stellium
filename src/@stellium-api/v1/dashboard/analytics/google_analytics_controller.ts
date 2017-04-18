@@ -10,6 +10,7 @@ import {
     SettingsKeys,
     CacheKeys
 } from '../../../../@stellium-common'
+import {SocketService} from '../../../../@stellium-socket/socket_service'
 
 
 const analytics = google.analytics('v3')
@@ -42,8 +43,6 @@ const getAnalyticsData = (viewId: string) => (input, cb: (err: any, data?: any) 
             key: input.key,
             data: data
         }
-
-        console.log('input.modifier', input.modifier)
 
         if (input.modifier) input.modifier(result)
 

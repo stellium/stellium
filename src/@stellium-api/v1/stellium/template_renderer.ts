@@ -9,11 +9,9 @@ import {ENV, minifyTemplate, Monolog, ViewsPath, LanguageKeys, CacheKeys} from '
 import {CommonRenderer, ResolveDatabaseDependencies} from '../../../@stellium-renderer'
 
 
-const redisClient = redis.createClient()
-
+const redisClient = redis.createClient({db: ENV.redis_index})
 
 export const StelliumTemplateRouter: Router = express.Router()
-
 
 const scanComponentFiles = (cb) => {
     const options = {
@@ -42,51 +40,39 @@ StelliumTemplateRouter.get('/modules-index', (req, res) => {
 
     let indexKey = 'stellium-modules-index'
 
-    redisClient.select(ENV.redis_index, err => {
+
+    redisClient.get(indexKey, (err, cachedModules) => {
 
         if (err) {
             Monolog({
-                message: 'Unable to select redis database at index ' + ENV.redis_index,
-                error: err,
-                severity: 'severe'
+                message: 'Error while attempting to index modules',
+                error: err
             })
-            res.status(500).send('Fatal error while attempting to select redis database by index')
+            res.sendStatus(500)
+        }
+
+        if (cachedModules) {
+            res.send(cachedModules)
             return
         }
 
-        redisClient.get(indexKey, (err, cachedModules) => {
+        async.waterfall([
+            scanComponentFiles,
+            mapComponentModules,
+        ], (err, modules) => {
 
             if (err) {
+                res.sendStatus(500)
                 Monolog({
-                    message: 'Error while attempting to index modules',
+                    message: 'Error indexing modules to populate module picker',
                     error: err
                 })
-                res.sendStatus(500)
-            }
-
-            if (cachedModules) {
-                res.send(cachedModules)
                 return
             }
+            res.send(modules)
 
-            async.waterfall([
-                scanComponentFiles,
-                mapComponentModules,
-            ], (err, modules) => {
-
-                if (err) {
-                    res.sendStatus(500)
-                    Monolog({
-                        message: 'Error indexing modules to populate module picker',
-                        error: err
-                    })
-                    return
-                }
-                res.send(modules)
-
-                // Cache scanned modules to redis for fast retrieval
-                redisClient.set(indexKey, JSON.stringify(modules))
-            })
+            // Cache scanned modules to redis for fast retrieval
+            redisClient.set(indexKey, JSON.stringify(modules))
         })
     })
 })
@@ -94,7 +80,7 @@ StelliumTemplateRouter.get('/modules-index', (req, res) => {
 
 StelliumTemplateRouter.post('/prebuild-template', (req, res) => {
 
-    console.log('req.get("host")', req.get("host"))
+    console.log('req.get("host")', req.get('host'))
 
     let page = req.body
 

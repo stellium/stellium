@@ -6,7 +6,7 @@ import * as geoip from 'geoip-lite'
 import {ENV, Monolog} from '../../../../@stellium-common'
 
 // req.headers['x-real-ip'] || req.connection.remoteAddress
-const redisClient = redis.createClient({db: '' + ENV.redis_index})
+const redisClient = redis.createClient({db: ENV.redis_index})
 
 const weatherCacheKeyPrefix = '_mt_weather_cache_'
 

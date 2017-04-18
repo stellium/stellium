@@ -1,8 +1,8 @@
 import * as redis from 'redis'
 import * as express from 'express'
-import {ENV, Monolog, LanguageKeys} from '../../../@stellium-common'
+import {ENV, LanguageKeys} from '../../../@stellium-common'
 
-const redisClient = redis.createClient()
+const redisClient = redis.createClient({db: ENV.redis_index})
 
 
 export const DefineCurrentLanguage = (req: express.Request, callback: (err: any, language?: string) => void): void => {
@@ -15,59 +15,43 @@ export const DefineCurrentLanguage = (req: express.Request, callback: (err: any,
     // en/some/url => `en`
     let [lang] = trimUrl.split('/')
 
-
     let languageToSet
 
-    redisClient.select(ENV.redis_index, err => {
+    redisClient.get(LanguageKeys.DefaultLanguage, (err, defaultLanguage) => {
 
-        if (err) {
-            Monolog({
-                message: 'Unable to select redis database at index ' + ENV.redis_index,
-                error: err,
-                severity: 'severe'
-            })
+        redisClient.get(LanguageKeys.AvailableLanguages, (err, availLanguagesString) => {
 
-            callback(err)
+            let availableLanguages: string[] = JSON.parse(availLanguagesString)
 
-            return
-        }
+            // Check if the language code really is a language
+            // en/some/url => OK, english
+            // xx/some/url => NO, maybe it's just a regular URL
+            if (availableLanguages && availableLanguages.includes(lang)) {
 
-        redisClient.get(LanguageKeys.DefaultLanguage, (err, defaultLanguage) => {
+                // Language selector in URL matches one of the available languages
+                // in the db, so it must be a language code
+                // e.g en/some/url => `en`
+                languageToSet = lang
 
-            redisClient.get(LanguageKeys.AvailableLanguages, (err, availLanguagesString) => {
+                req.url = (req.url + '/').replace('/' + lang, '')
 
-                let availableLanguages: string[] = JSON.parse(availLanguagesString)
+            } else {
 
-                // Check if the language code really is a language
-                // en/some/url => OK, english
-                // xx/some/url => NO, maybe it's just a regular URL
-                if (availableLanguages && availableLanguages.includes(lang)) {
+                // It is not a language, set the current language to the default language
+                // xx/some/url => language is set to default language as `xx` does not match
+                // any languages in the DB
+                languageToSet = defaultLanguage
+            }
 
-                    // Language selector in URL matches one of the available languages
-                    // in the db, so it must be a language code
-                    // e.g en/some/url => `en`
-                    languageToSet = lang
+            /**
+             * TODO(perf): Can we not just store it in the request? Is it faster than using redis?
+             * @date - 26 Mar 2017
+             * @time - 1:31 PM
+             */
+            // Store current language in memory
+            redisClient.set(LanguageKeys.CurrentLanguage, languageToSet)
 
-                    req.url = (req.url + '/').replace('/' + lang, '')
-
-                } else {
-
-                    // It is not a language, set the current language to the default language
-                    // xx/some/url => language is set to default language as `xx` does not match
-                    // any languages in the DB
-                    languageToSet = defaultLanguage
-                }
-
-                /**
-                 * TODO(perf): Can we not just store it in the request? Is it faster than using redis?
-                 * @date - 26 Mar 2017
-                 * @time - 1:31 PM
-                 */
-                // Store current language in memory
-                redisClient.set(LanguageKeys.CurrentLanguage, languageToSet)
-
-                callback(null, languageToSet)
-            })
+            callback(null, languageToSet)
         })
     })
 }

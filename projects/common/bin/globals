@@ -1,24 +1,23 @@
-const path = require('path');
-
+const path = require('path')
 
 
 module.exports = function (env) {
 
     Object.defineProperty(global, 'StelliumRootPath', {
         get: () => path.resolve('.')
-    });
+    })
 
     // Define global variables in this file. ONLY USE FOR DEVELOPMENT PURPOSES.
     // Never use global / GLOBAL in production!!!
     Object.defineProperty(global, '__stack', {
         get: function () {
-            let orig = Error['prepareStackTrace'];
-            Error['prepareStackTrace'] = (_, stack) => stack;
-            let err = new Error;
-            Error['captureStackTrace'](err, arguments['callee']);
-            let stack = err.stack;
-            Error['prepareStackTrace'] = orig;
-            return stack;
+            let orig = Error['prepareStackTrace']
+            Error['prepareStackTrace'] = (_, stack) => stack
+            let err = new Error
+            Error['captureStackTrace'](err, arguments['callee'])
+            let stack = err.stack
+            Error['prepareStackTrace'] = orig
+            return stack
         }
     })
 

@@ -4,6 +4,7 @@
         "declaration": true,
         "stripInternal": true,
         "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
         "module": "commonjs",
         "moduleResolution": "node",
         "outDir": "./dist",
@@ -28,6 +29,7 @@
         "src/typings.d.ts",
         "src/@stellium-database/index.ts",
         "src/@stellium-server/index.ts",
-        "src/@stellium-socket/index.ts"
+        "src/@stellium-socket/index.ts",
+        "src/@stellium-decorators/design_proposal.ts"
     ]
 }

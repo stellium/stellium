@@ -1,4 +1,3 @@
-import * as redis from 'redis'
 import {Request, Response} from 'express'
 import {Model} from 'mongoose'
 import {
@@ -7,10 +6,6 @@ import {
     SystemUserModel,
 } from '../../../@stellium-database'
 import {CacheQueryResult, DeletePageCache} from '../resource_cache'
-import {ENV, Monolog, CacheKeys} from '../../../@stellium-common'
-
-
-const redisClient = redis.createClient({db: '' + ENV.redis_index})
 
 
 export interface DynamicRouteMethod {

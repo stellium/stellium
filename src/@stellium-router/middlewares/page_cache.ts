@@ -9,7 +9,7 @@ import {
     SettingsKeys
 } from '../../@stellium-common'
 const universalAnalytics = require('universal-analytics')
-const redisClient = redis.createClient({db: '' + ENV.redis_index})
+const redisClient = redis.createClient({db: ENV.redis_index})
 
 
 export const PageCacheMiddleware = (req, res, next) => {

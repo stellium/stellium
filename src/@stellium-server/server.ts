@@ -7,7 +7,7 @@ import * as compression from 'compression'
 import * as session from 'express-session'
 import * as connectRedis from 'connect-redis'
 import * as cookieParser from 'cookie-parser'
-
+import 'reflect-metadata/Reflect'
 
 // @stellium
 import {ENV} from '../@stellium-common'
@@ -22,7 +22,7 @@ import {ScriptCompilerBluePrint} from '../@stellium-compiler'
 const RedisStore = connectRedis(session)
 
 
-const redisClient = redis.createClient({db: '' + ENV.redis_index})
+const redisClient = redis.createClient({db: ENV.redis_index})
 
 export class ApplicationServer {
 
@@ -89,7 +89,7 @@ export class ApplicationServer {
         if (LOG_ERRORS) this.app.use(logger('dev'))
 
         // Initialise API Routes
-        new ApiRouter(this.app)
+        this.app.use('/api', ApiRouter)
 
         // Disable iFrame mode outside of the API router
         this.app.use((req, res, next) => {

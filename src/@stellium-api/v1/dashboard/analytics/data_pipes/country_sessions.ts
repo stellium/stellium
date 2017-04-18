@@ -1,4 +1,4 @@
 export const CountrySessionsPipe = (data: any) => {
 
-    console.log('data', data)
+    // console.log('data', data)
 }

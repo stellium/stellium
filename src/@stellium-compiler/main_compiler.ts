@@ -10,12 +10,12 @@ import * as nodeSass from 'node-sass'
 import * as browserify from 'browserify'
 import * as redis from 'redis'
 import * as memoryCache from 'memory-cache'
-import {CachePath, ViewsPath} from "../@stellium-common"
+import {CachePath, ViewsPath, ENV} from "../@stellium-common"
 import ReadWriteStream = NodeJS.ReadWriteStream
-import {AttributeKeys} from '../@stellium-common/keys/renderer_attribute_keys'
+import {AttributeKeys} from '../@stellium-common'
 
 
-const redisClient = redis.createClient()
+const redisClient = redis.createClient({db: ENV.redis_index})
 
 
 redisClient.get()

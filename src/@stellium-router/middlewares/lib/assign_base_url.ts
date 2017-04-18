@@ -1,42 +1,27 @@
 import * as redis from 'redis'
 import * as express from 'express'
-import {LanguageKeys, ENV, Monolog} from '../../../@stellium-common'
+import {LanguageKeys, ENV} from '../../../@stellium-common'
 
-const redisClient = redis.createClient();
+const redisClient = redis.createClient({db: ENV.redis_index});
 
 
 export const AssignBaseUrl = (websiteRouter: express.Application) => (current_language: string): void => {
 
-    redisClient.select(ENV.redis_index, err => {
+    redisClient.get(LanguageKeys.AvailableLanguages, (err, availableLanguagesString) => {
 
-        if (err) {
-            Monolog({
-                message: 'Unable to select redis database at index ' + ENV.redis_index,
-                error: err,
-                severity: 'severe'
-            })
+        let availableLanguages: string[] = JSON.parse(availableLanguagesString)
 
-            websiteRouter.locals.base_url = ''
+        redisClient.get(LanguageKeys.DefaultLanguage, (err, defaultLanguage) => {
 
-            return
-        }
+            if (availableLanguages.includes(current_language)) {
 
-        redisClient.get(LanguageKeys.AvailableLanguages, (err, availableLanguagesString) => {
+                // Prefix base path with language for navigation consistency
+                websiteRouter.locals.base_url = current_language === defaultLanguage ? '' : current_language + '/'
 
-            let availableLanguages: string[] = JSON.parse(availableLanguagesString)
+            } else {
 
-            redisClient.get(LanguageKeys.DefaultLanguage, (err, defaultLanguage) => {
-
-                if (availableLanguages.includes(current_language)) {
-
-                    // Prefix base path with language for navigation consistency
-                    websiteRouter.locals.base_url = current_language === defaultLanguage ? '' : current_language + '/'
-
-                } else {
-
-                    websiteRouter.locals.base_url = ''
-                }
-            })
+                websiteRouter.locals.base_url = ''
+            }
         })
     })
-};
+}

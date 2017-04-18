@@ -24,7 +24,7 @@ const universalAnalytics = require('universal-analytics')
 
 
 
-const redisClient = redis.createClient()
+const redisClient = redis.createClient({db: ENV.redis_index})
 
 
 const cachePageData = (req: Request, html: string, minify = true) => {
@@ -34,23 +34,11 @@ const cachePageData = (req: Request, html: string, minify = true) => {
 
     if (req.query.hot) cacheKey = cacheKey + '_hot'
 
-    redisClient.select(ENV.redis_index, err => {
-
-        if (err) {
-            Monolog({
-                message: 'Unable to select redis database at index ' + ENV.redis_index,
-                error: err,
-                severity: 'severe'
-            })
-            return
-        }
-
         // Save compiled HTML to memory
         redisClient.set(
             cacheKey,
             minify ? minifyTemplate(html) : html
         )
-    })
 }
 
 
