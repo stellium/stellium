@@ -2,13 +2,14 @@ import * as mongoose from 'mongoose'
 
 
 export interface MonologSchema {
-    file_path?: string;
-    line_number?: number;
-    message?: string;
-    error?: any;
-    severity?: 'severe' | 'moderate' | 'light' | 'ignore';
-    status?: 'created' | 'transported' | 'read' | 'resolved';
-    created_at?: Date;
+    file_path?: string
+    line_number?: number
+    message?: string
+    error?: any
+    error_code?: string
+    severity?: 'severe' | 'moderate' | 'light' | 'ignore'
+    status?: 'created' | 'transported' | 'read' | 'resolved'
+    created_at?: Date
 }
 
 /** Need to extend merge mongoose.Document and Schema to be able to reuse schema in Angular / Non-node.js environment */
@@ -32,14 +33,18 @@ const Schema = new mongoose.Schema({
         type: mongoose.Schema.Types.Mixed,
         'default': 'NOERR'
     },
+    error_code: {
+        type: String,
+        'default': 'NOERRCODE'
+    },
     severity: {
         type: String,
-        enum: ['severe', 'moderate', 'light', 'ignore'],
+        'enum': ['severe', 'moderate', 'light', 'ignore'],
         'default': 'severe'
     },
     status: {
         type: String,
-        enum: ['created', 'transported', 'read', 'resolved'],
+        'enum': ['created', 'transported', 'read', 'resolved'],
         'default': 'created'
     },
     created_at: {

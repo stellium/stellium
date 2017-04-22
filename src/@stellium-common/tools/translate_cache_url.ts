@@ -1,5 +1,5 @@
 import {CacheKeys} from '../keys/cache_keys'
-export const translateCacheUrl = (lang: string, url: string): string => {
+export const TranslateCacheUrl = (lang: string, url: string): string => {
 
     url = url.replace(/^\/+|\/+$/g, '')
 

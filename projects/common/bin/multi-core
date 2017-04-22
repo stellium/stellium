@@ -1,6 +1,7 @@
-const fs = require('fs');
-const numCPUs = require('os').cpus().length;
-const cluster = require('cluster');
+const fs = require('fs')
+const numCPUs = require('os').cpus().length
+const cluster = require('cluster')
+const stickySession = require('sticky-session')
 
 
 function initiate(env,
@@ -10,45 +11,47 @@ function initiate(env,
                   onError,
                   onListening) {
 
-    if (cluster.isMaster) {
+	if (cluster.isMaster) {
 
-        console.log('Launching ' + numCPUs + ' clusters');
+		console.log('Launching ' + numCPUs + ' CPU clusters')
 
-        for (let i = 0; i < numCPUs; i++) {
-            cluster.fork();
-            if (i === (numCPUs - 1)) console.log('Master cluster ready');
-        }
+		for (let i = 0; i < numCPUs; i++) {
+			cluster.fork()
+			if (i === (numCPUs - 1)) console.log('Master cluster ready')
+		}
 
-        cluster.on('exit', function (worker) {
-            console.log('Worker ' + worker.process.pid + ' killed.');
-        });
+		cluster.on('exit', function (worker) {
+			console.log('Worker ' + worker.process.pid + ' killed.')
+		})
 
-    } else {
+	}
 
-        app.set('port', port);
+	if (cluster.isWorker) {
 
-        let server;
+		app.set('port', port)
 
-        if (!env.use_ssl) {
+		let server
 
-            server = protocol.createServer(app);
+		if (!env.use_ssl) {
 
-        } else {
+			server = protocol.createServer(app)
 
-            let options = {
-                key: fs.readFileSync(env.ssl_path + 'localhost.key'),
-                cert: fs.readFileSync(env.ssl_path + 'localhost.crt'),
-                requestCert: false,
-                rejectUnauthorized: false
-            };
+		} else {
 
-            server = protocol.createServer(options, app);
-        }
+			let options = {
+				key: fs.readFileSync(env.ssl_path + 'localhost.key'),
+				cert: fs.readFileSync(env.ssl_path + 'localhost.crt'),
+				requestCert: false,
+				rejectUnauthorized: false
+			};
 
-        server.listen(port);
-        server.on('error', onError);
-        server.on('listening', onListening);
-    }
+			server = protocol.createServer(options, app)
+		}
+
+		server.listen(port)
+		server.on('error', onError)
+		server.on('listening', onListening)
+	}
 }
 
-module.exports = initiate;
+module.exports = initiate

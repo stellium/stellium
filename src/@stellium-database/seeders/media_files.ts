@@ -23,17 +23,22 @@ const removeFiles = (cb: (err: any) => void): void => {
 };
 
 
-
 const indexFiles = (user, cb) => glob(MediaPath + '/**/*', {nodir: true}, (err, files) => cb(err, user, files));
 
 
 const extractFileMetaData = (user) => (file, cb) => {
 
 
-    let nameChunks = file.replace(MediaPath, '').split('/'),
-        folderFileName = file.replace(MediaPath, ''),
-        fileName = nameChunks[nameChunks.length - 1];
+    let nameChunks = file.replace(MediaPath, '').split('/')
 
+    let folderFileName = file.replace(MediaPath, '')
+
+    let fileName = nameChunks[nameChunks.length - 1]
+
+    if (fileName === 'blank.png') {
+        cb(null)
+        return
+    }
 
     MediaFileModel.create({
         url: file.replace(MediaPath, '').replace(/^\/|\/$/g, ''),
@@ -65,7 +70,7 @@ const seedFiles = (cb: (err: any) => void): void => {
 
 
 export const FilesSeeder = (cb: (err: any) => void): void => {
-    SeedConsole("Seeding Media");
+    SeedConsole('Seeding Media');
     async.series([
         removeFiles,
         seedFiles,

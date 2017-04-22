@@ -1,12 +1,13 @@
+import * as express from 'express'
+import {Router} from 'express'
+import {DynamicRenderer} from '../@stellium-renderer'
 import {PageCacheMiddleware} from './middlewares/page_cache'
 import {MultiLanguageMiddleware} from './middlewares/multi_language'
 import {DefaultPageMiddleware} from './middlewares/default_page'
-import {Application} from 'express'
-import {DynamicRenderer} from '../@stellium-renderer'
 import {AjaxController} from './controllers/ajax/ajax_controller'
-import {SystemSettingsMiddleware} from './middlewares/system_settings'
 import {OffersDetailController} from './offers/offers_controller'
-import {CustomRoutesMiddleware} from './custom/index'
+import {CustomRoutesMiddleware} from './custom'
+import {SystemSettingsMiddleware} from './middlewares/system_settings'
 
 
 const ignoreMiddleware = (req, res, next) => {
@@ -15,94 +16,46 @@ const ignoreMiddleware = (req, res, next) => {
 }
 
 
-export class ApplicationRouter {
+export const ApplicationRouter: Router = express.Router()
 
 
-    app: Application
+// Routes that should have been handled by NGINX directly
+const disallowedUrls = ['media', 'mt-users', 'c']
 
 
-    constructor(_app: Application) {
-
-        this.app = _app
-
-        this._configure()
-    }
+// Bypass the nginx URLs to relieve express app from stress
+disallowedUrls.forEach(_url => ApplicationRouter.use('/' + _url, ignoreMiddleware))
 
 
-    private _configure(): void {
+// Request handler for AJAX request made on the front-end
+ApplicationRouter.use('/ajax', AjaxController)
 
 
-        // Routes that should have been handled by NGINX directly
-        const disallowedUrls = ['media', 'mt-users', 'c']
-
-        // Bypass the nginx URLs to relieve express app from stress
-        disallowedUrls.forEach(_url => this.app.use('/' + _url, ignoreMiddleware))
+// Assign system languages to the current req.app instance
+ApplicationRouter.use(MultiLanguageMiddleware)
 
 
-        /*
-        this.app.use((req, res, next) => {
-
-            // TODO(security): Is this the best way to check whether a request is for a file?
-            // Checks if the request is trying to find a file
-            const isAssetsRequest = req.url.includes('.')
-
-            // Do not process static assets via express
-            // we want them to be handled by NGINX
-            if (isAssetsRequest) {
-                let err = new Error('Not Found')
-                err['status'] = 404
-                next(404)
-            }
-
-            // Move request forward for non-assets requests
-            else next()
-        })
-    */
+ApplicationRouter.use(SystemSettingsMiddleware)
 
 
-        // Assign system settings to the current req.app instance
-        this.app.use(SystemSettingsMiddleware)
+ApplicationRouter.use(CustomRoutesMiddleware)
 
 
-        // The Google Universal Analytics middleware depends on system settings to correctly retrieve the client's
-        // tracking, do not reposition above the SystemSettingsMiddleware
-        // We only want to use this feature when we are not in development and HotPageReload is activated
-        /**
-         * TODO():
-         * @date - 4/11/17
-         * @time - 11:20 AM
-         */
+ApplicationRouter.get('/offers/:offerUrl', OffersDetailController)
 
 
-        // Request handler for AJAX request made on the front-end
-        this.app.use('/ajax', AjaxController)
+// Get default page URL and assign it to the current request.url address
+// e.g `home` for english, `beranda` for indonesian, `start-pagina` for dutch etc.
+ApplicationRouter.get('/', DefaultPageMiddleware)
 
 
-        // Assign system languages to the current req.app instance
-        this.app.use(MultiLanguageMiddleware)
+// Pages that are not cached should be handled above this middleware
+if (!DEVELOPMENT) ApplicationRouter.use(PageCacheMiddleware)
 
 
-        this.app.use(CustomRoutesMiddleware)
-
-
-        this.app.get('/offers/:offerUrl', OffersDetailController)
-
-
-        // Get default page URL and assign it to the current request.url address
-        // e.g `home` for english, `beranda` for indonesian, `start-pagina` for dutch etc.
-        this.app.get('/', DefaultPageMiddleware)
-
-
-        // Pages that are not cached should be handled above this middleware
-        if (!DEVELOPMENT) this.app.use(PageCacheMiddleware)
-
-
-        /**
-         * TODO(production): re-introduce ecommerce routes
-         * @date - 25 Mar 2017
-         * @time - 7:31 PM
-         */
-
-        this.app.use(DynamicRenderer)
-    }
-}
+/**
+ * TODO(production): re-introduce ecommerce routes
+ * @date - 25 Mar 2017
+ * @time - 7:31 PM
+ */
+ApplicationRouter.use(DynamicRenderer)

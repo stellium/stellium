@@ -4,6 +4,8 @@ import {SystemSettingsModel} from '../../@stellium-database'
 
 
 const redisClient = redis.createClient({db: ENV.redis_index})
+
+
 /**
  * Setup the current, default and available languages and saves them into the memory
  * @constructor
@@ -17,17 +19,14 @@ export const SystemSettingsMiddleware = (req, res, next): void => {
 
         if (err) {
             Monolog({
-                message: 'Fatal retrieving cache from settings.',
+                message: 'Error retrieving cache from settings.',
                 error: err
             })
         }
 
         if (stringSettings) {
-
             req.app.set(CacheKeys.SettingsKey, JSON.parse(stringSettings))
-
             next()
-
             return
         }
 
@@ -36,7 +35,7 @@ export const SystemSettingsMiddleware = (req, res, next): void => {
             if (err) {
                 res.status(500).send('An error occurred while rendering this page')
                 Monolog({
-                    message: 'Fatal retrieving system settings for request.',
+                    message: 'Error while retrieving system settings for request.',
                     error: err
                 })
                 return
@@ -46,13 +45,12 @@ export const SystemSettingsMiddleware = (req, res, next): void => {
 
                 if (err) {
                     Monolog({
-                        message: 'Fatal error caching settings.',
+                        message: 'Error caching system settings.',
                         error: err
                     })
                 }
 
                 req.app.set(CacheKeys.SettingsKey, settings)
-
                 next()
             })
         })

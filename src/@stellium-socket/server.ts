@@ -1,6 +1,7 @@
 import * as async from 'async'
 import * as redis from 'redis'
 import * as io from 'socket.io'
+import * as ioRedis from 'socket.io-redis'
 import * as colors from 'colors'
 import {
     ENV,
@@ -9,11 +10,10 @@ import {
     CommonErrors,
     SocketEventKeys
 } from '../@stellium-common'
-import {SocketService} from './socket_service'
 import {IncomingConnectionHandler} from './connection_handler'
 import {GetPageVisitData} from './controllers/page_visit'
 import {GetNumberOfOnlineUsers} from './controllers/online_users'
-import {GetAdminClientSocketId} from './get_admin_id'
+// import {GetAdminClientSocketId} from './get_admin_id'
 
 
 const redisClient = redis.createClient({db: ENV.redis_index})
@@ -29,6 +29,7 @@ export const SocketServer = (socket) => {
 
         socket.on(SocketEventKeys.RequestUserCount, () => GetNumberOfOnlineUsers(socket))
 
+        /*
         SocketService.onMessageRequest$.subscribe(messageTransportData => {
 
             if (messageTransportData.clientId) {
@@ -43,6 +44,7 @@ export const SocketServer = (socket) => {
 
             socket.emit(messageTransportData.eventKey, messageTransportData.payload)
         })
+        */
     })
 }
 
@@ -64,7 +66,9 @@ export class SocketServerC {
 
     constructor(private socketPort: number) {
 
-        this.socket = io.listen(socketPort)
+        const _io = this.socket = io.listen(socketPort)
+
+        _io.adapter(ioRedis())
 
         this.socket.on('connection', socket => {
 
@@ -74,6 +78,7 @@ export class SocketServerC {
 
             socket.on(SocketEventKeys.RequestUserCount, () => this._getNumberOfOnlineUsers())
 
+            /*
             SocketService.onMessageRequest$.subscribe(messageTransportData => {
 
                 if (messageTransportData.clientId) {
@@ -88,6 +93,7 @@ export class SocketServerC {
 
                 this.socket.emit(messageTransportData.eventKey, messageTransportData.payload)
             })
+            */
         })
     }
 

@@ -7,22 +7,21 @@ import * as compression from 'compression'
 import * as session from 'express-session'
 import * as connectRedis from 'connect-redis'
 import * as cookieParser from 'cookie-parser'
-import 'reflect-metadata/Reflect'
-
 // @stellium
-import {ENV} from '../@stellium-common'
+import {ENV, CacheKeys} from '../@stellium-common'
 import {ApplicationRouter} from '../@stellium-router'
 import {ApiRouter} from '../@stellium-api'
 import {ErrorsHandler} from './errors_handler'
 import {CompileScripts} from '../@stellium-compiler'
-import {CacheKeys} from '../@stellium-common'
 import {ScriptCompilerBluePrint} from '../@stellium-compiler'
+import {StoreService, StoreKeys} from '../@stellium-store'
 
 
-const RedisStore = connectRedis(session)
+const RedisConnectStore = connectRedis(session)
 
 
 const redisClient = redis.createClient({db: ENV.redis_index})
+
 
 export class ApplicationServer {
 
@@ -42,7 +41,7 @@ export class ApplicationServer {
 
         return new Promise((resolve, reject) => {
 
-            console.log(colors.yellow('Flushing redis db for ' + ENV.redis_index))
+            console.log(colors.yellow('Flushing redis db. Index: ' + ENV.redis_index))
 
             redisClient.flushdb(() => {
 
@@ -72,6 +71,8 @@ export class ApplicationServer {
 
 
     constructor() {
+
+        StoreService.update(StoreKeys.Whatever, 'hello')
 
         this.configure()
     }
@@ -104,7 +105,7 @@ export class ApplicationServer {
             cookie: {
                 httpOnly: false
             },
-            store: new RedisStore({db: ENV.redis_index}),
+            store: new RedisConnectStore({db: ENV.redis_index}),
         }
 
         if (!DEVELOPMENT && ENV.use_ssl) {
@@ -118,7 +119,7 @@ export class ApplicationServer {
         this.app.use(session(_session))
 
         // Template resource routes for dynamic pages rendering
-        new ApplicationRouter(this.app)
+        this.app.use(ApplicationRouter)
 
         // HTTP Error handler
         new ErrorsHandler(this.app)

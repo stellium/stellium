@@ -1,6 +1,6 @@
 import * as async from 'async'
-import {WebsitePageSchema, BlogPostSchema} from '../../../@stellium-common'
-import {WebsitePageModel, BlogPostModel} from '../../../@stellium-database'
+import {WebsitePageSchema, BlogPostSchema} from '../../../../@stellium-common'
+import {WebsitePageModel, BlogPostModel} from '../../../../@stellium-database'
 
 
 const getPagesForScanning = (cb: (err: any, pages: WebsitePageSchema[]) => void): void => {
@@ -17,11 +17,11 @@ const getPostsForScanning = (cb: (err: any, posts: BlogPostSchema[]) => void): v
 
 const checkPagesForFileUsage = (pages: WebsitePageSchema[], fileName: string, cb: (err: any, result?: any[]) => void): void => {
 
-    const fileRegex = new RegExp("/" + fileName + "/g")
-
-    const matchedModule = []
+    const matchedPages = []
 
     pages.forEach(_page => {
+
+        const matchedModules = []
 
         _page.modules.forEach(_module => {
 
@@ -29,42 +29,41 @@ const checkPagesForFileUsage = (pages: WebsitePageSchema[], fileName: string, cb
 
             const moduleData = JSON.stringify(_module.data)
 
-            const configMatch = (moduleConfig.match(fileRegex) || []).length
+            const configMatch = (moduleConfig.match(fileName) || []).length
 
-            console.log('configMatch', configMatch)
-
-            const dataMatch = (moduleData.match(fileRegex) || []).length
-
-            console.log('dataMatch', dataMatch)
+            const dataMatch = (moduleData.match(fileName) || []).length
 
             if (configMatch || dataMatch) {
 
-                matchedModule.push({
+                matchedModules.push({
                     module: _module.template,
                     counts: configMatch + dataMatch
                 })
             }
         })
+
+        if (matchedModules && matchedModules.length) {
+
+            matchedPages.push({
+                page: _page.title['en'],
+                modules: matchedModules
+            })
+        }
     })
 
-    cb(null, matchedModule)
+    cb(null, matchedPages)
 }
 
 
-export const FileUsageCheck = (req, res) => {
+export const fileUsageCheck = (req, res) => {
 
     const fileUrl = req.query['fileUrl']
-
-    console.log('Check usage for', fileUrl)
 
     async.parallel({
         pages: <any>getPagesForScanning,
         // posts: <any>getPostsForScanning
     }, (err, results) => {
 
-        checkPagesForFileUsage(<WebsitePageSchema[]>results.pages, `media/${fileUrl}`, (err, matches) => {
-
-            res.send(matches)
-        })
+        checkPagesForFileUsage(<WebsitePageSchema[]>results.pages, fileUrl, (err, matches) => res.send(matches))
     })
 }

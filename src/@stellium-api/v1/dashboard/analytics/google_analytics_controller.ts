@@ -10,7 +10,6 @@ import {
     SettingsKeys,
     CacheKeys
 } from '../../../../@stellium-common'
-import {SocketService} from '../../../../@stellium-socket/socket_service'
 
 
 const analytics = google.analytics('v3')

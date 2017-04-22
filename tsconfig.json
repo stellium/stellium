@@ -3,15 +3,15 @@
         "baseUrl": ".",
         "declaration": true,
         "stripInternal": true,
-        "experimentalDecorators": true,
+        "target": "ES5",
         "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
         "module": "commonjs",
         "moduleResolution": "node",
         "outDir": "./dist",
         "rootDir": "./src",
         "sourceMap": true,
         "inlineSources": true,
-        "target": "es5",
         "skipLibCheck": true,
         "lib": [
             "es7",
@@ -29,7 +29,6 @@
         "src/typings.d.ts",
         "src/@stellium-database/index.ts",
         "src/@stellium-server/index.ts",
-        "src/@stellium-socket/index.ts",
-        "src/@stellium-decorators/design_proposal.ts"
+        "src/@stellium-socket/index.ts"
     ]
 }

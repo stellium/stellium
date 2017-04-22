@@ -1,55 +1,9 @@
 import * as fs from 'fs'
-import * as glob from 'glob'
 import * as path from 'path'
-import * as multer from 'multer'
-import * as mkdirp from 'mkdirp'
-import * as express from 'express'
 import * as imageSize from 'image-size'
-import {Router} from "express"
-import {MediaPath, Monolog, StoragePath} from '../../../@stellium-common'
-import {MediaFileModel} from '../../../@stellium-database'
-import {FileUsageCheck} from './file_usage_check'
-
-
-export const FilesRouter: Router = express()
-
-
-const TempPath = path.resolve(StoragePath, '.tmp')
-
-
-const getFileExtension = (fileName) => {
-    return fileName.split('/')[1]
-}
-
-
-const storage = multer.diskStorage({
-    // Temporary destination for file uploads
-    destination: (req, file, cb) => mkdirp(TempPath, err => cb(err, TempPath))
-})
-
-
-const upload = multer({storage: storage})
-
-
-FilesRouter.get('/', (req, res) => {
-
-    MediaFileModel.find({}, (err, files) => {
-
-        if (err) {
-
-            Monolog({
-                message: 'MongoDB failed to index media collection',
-                error: err
-            })
-
-            res.status(500).send('Internal Server Error')
-
-        } else res.send(files)
-    })
-})
-
-
-FilesRouter.get('/usage', FileUsageCheck)
+import {Monolog, MediaPath} from '../../../../@stellium-common'
+import {MediaFileModel} from '../../../../@stellium-database'
+import {getFileExtension} from './_lib'
 
 
 /**
@@ -59,7 +13,7 @@ FilesRouter.get('/usage', FileUsageCheck)
  * @param cb
  * @constructor
  */
-const CheckForConflictingFile = (path: string, cb?: (err: any) => void): void => {
+const checkForConflictingFile = (path: string, cb?: (err: any) => void): void => {
 
     fs.access(path, err => {
 
@@ -83,7 +37,7 @@ const CheckForConflictingFile = (path: string, cb?: (err: any) => void): void =>
 }
 
 
-FilesRouter.post('/', upload.single('file'), (req, res) => {
+export const uploadFile = (req, res) => {
 
     if (!req.file) {
         res.status(309).send('Missing file object in request')
@@ -111,7 +65,7 @@ FilesRouter.post('/', upload.single('file'), (req, res) => {
      *
      * Check for conflicting files in the media directory
      */
-    CheckForConflictingFile(newPath, err => {
+    checkForConflictingFile(newPath, err => {
 
         if (err) {
             /**
@@ -175,97 +129,4 @@ FilesRouter.post('/', upload.single('file'), (req, res) => {
             })
         })
     })
-})
-
-
-FilesRouter.get('/:fileId', (req, res) => {
-
-    MediaFileModel.findById(req.params['fileId'], (err, file) => {
-
-        if (err) {
-
-            Monolog({
-                message: 'Failed to retrieve file document',
-                error: err
-            })
-
-            res.status(500).send('Internal Server Error')
-
-        } else res.send(file)
-    })
-})
-
-
-/**
- * Replaces a file with a new one
- *
- */
-FilesRouter.patch('/:fileId', (req, res) => {
-    res.send('Attempting to patch a file')
-})
-
-
-FilesRouter.delete('/:fileId', (req, res) => {
-
-    MediaFileModel.findById(req.params['fileId'], (err, _file) => {
-
-        if (err) return res.status(500).send('Error deleting file')
-
-        fs.unlink(path.resolve(MediaPath, _file['url']), (err) => {
-
-            if (err) {
-
-                console.log('error removing file', err)
-
-                return res.status(500).send('An error occurred while trying to delete the selected file.')
-            }
-
-            _file.remove((err) => {
-
-                if (err) {
-
-                    console.log('error removing file', err)
-
-                    return res.status(500).send('An error occurred while trying to delete the file from the database')
-                }
-
-                res.send('File has been deleted successfully.')
-            })
-        })
-    })
-})
-
-
-const clearTempFolder = () => {
-
-    glob(TempPath + '/*', (err, files) => {
-
-        files.forEach(file => {
-
-            fs.unlink(file, err => {
-
-                if (err) {
-
-                    Monolog({
-                        message: 'Error deleting file in `clearTempFolder()`',
-                        error: err
-                    })
-                }
-            })
-        })
-    })
-}
-
-
-const checkMultipleFiles = (files, cb) => {
-
-    files.forEach(file => {
-
-        // TODO(boris): wrong path, here is temp path but should check final path
-        let fileExist = fs.statSync(file.path)
-
-        if (fileExist) return cb(new Error('File exists'), false)
-    })
-
-    cb(null, true)
 }

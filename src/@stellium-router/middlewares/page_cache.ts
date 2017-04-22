@@ -2,7 +2,7 @@ import * as redis from 'redis'
 import * as cheerio from 'cheerio'
 import {
     LanguageKeys,
-    translateCacheUrl,
+    TranslateCacheUrl,
     CacheKeys,
     ENV,
     Monolog,
@@ -19,7 +19,7 @@ export const PageCacheMiddleware = (req, res, next) => {
     const url = req.url.replace(/^\/+|\/+$/g, '')
 
     // Cache key where the content is store in redis
-    let cachedKey = translateCacheUrl(lang, url)
+    let cachedKey = TranslateCacheUrl(lang, url)
 
     // append `_hot` keyword for hot reloaded content
     if (req.query.hot) cachedKey += '_hot'
@@ -46,7 +46,15 @@ export const PageCacheMiddleware = (req, res, next) => {
 
             const GATrackingIdSettings = systemSettings.find(_setting => _setting.key === SettingsKeys.AnalyticsTrackingID)
 
-            if (GATrackingIdSettings) {
+            if (!GATrackingIdSettings) {
+                Monolog({
+                    message: 'Analytics Tracking ID was not found while attempting to track analytics data',
+                    error: new Error('Analytics Tracking ID Missing')
+                })
+                return
+            }
+
+            if (!req.hostname.includes('.dev')) {
 
                 universalAnalytics(GATrackingIdSettings.value, req.session.id).pageview(req.originalUrl, err => {
 
@@ -59,12 +67,8 @@ export const PageCacheMiddleware = (req, res, next) => {
                     }
                 })
 
-            } else {
+                return
 
-                Monolog({
-                    message: 'Analytics Tracking ID was not found while attempting to track analytics data',
-                    error: new Error('Analytics Tracking ID Missing')
-                })
             }
         }
     })

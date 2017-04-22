@@ -1,6 +1,6 @@
 import {Observable} from 'rxjs/Observable'
 import {Subject} from 'rxjs/Subject'
-import {Injectable} from '../@stellium-decorators/injectable'
+// import {Injectable} from '../@stellium-decorators/injectable'
 
 
 export interface MessageTransportRequest {
@@ -10,7 +10,7 @@ export interface MessageTransportRequest {
 }
 
 
-@Injectable()
+// @Injectable()
 export class SocketServiceInjector {
 
 

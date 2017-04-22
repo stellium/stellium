@@ -10,7 +10,7 @@ import {
     LanguageKeys,
     minifyTemplate,
     Monolog,
-    translateCacheUrl,
+    TranslateCacheUrl,
     ViewsPath,
     CacheKeys,
     SettingsKeys,
@@ -30,7 +30,7 @@ const redisClient = redis.createClient({db: ENV.redis_index})
 const cachePageData = (req: Request, html: string, minify = true) => {
 
     // Cache key of where to store the compiled HTML in redis for later retrieval
-    let cacheKey = translateCacheUrl(req.app.get(LanguageKeys.CurrentLanguage), req.url)
+    let cacheKey = TranslateCacheUrl(req.app.get(LanguageKeys.CurrentLanguage), req.url)
 
     if (req.query.hot) cacheKey = cacheKey + '_hot'
 
@@ -137,20 +137,23 @@ export const CommonRenderer = (req: Request,
                 return
             }
 
-
-            // Whether the request was made to stimulate page caching
-            const cacheHeader = req.header('Stellium-Cache')
-            const cacheRequest = cacheHeader && cacheHeader === 'true'
-
-            if (!iFrameMode && !DEVELOPMENT && cacheRequest) {
+            if (!iFrameMode && !DEVELOPMENT) {
 
                 const GATrackingIdSettings = systemSettings.find(_setting => _setting.key === SettingsKeys.AnalyticsTrackingID)
 
-                if (GATrackingIdSettings) {
+                if (!GATrackingIdSettings) {
+                    // Tracking ID does not exists
+                    Monolog({
+                        message: 'Analytics Tracking ID was not found while attempting to track analytics data',
+                        error: new Error('Analytics Tracking ID Missing')
+                    })
+                }
+
+                if (GATrackingIdSettings && !req.hostname.includes('.dev')) {
 
                     universalAnalytics(GATrackingIdSettings.value, req.session.id).pageview(req.originalUrl, err => {
 
-                        console.log('analytics send for', GATrackingIdSettings.value, req.session.session_id)
+                        if (LOG_ERRORS) console.log('analytics send for', GATrackingIdSettings.value, req.session.id)
 
                         if (err) {
                             Monolog({
@@ -160,12 +163,6 @@ export const CommonRenderer = (req: Request,
                         }
                     })
 
-                } else {
-
-                    Monolog({
-                        message: 'Analytics Tracking ID was not found while attempting to track analytics data',
-                        error: new Error('Analytics Tracking ID Missing')
-                    })
                 }
             }
 
