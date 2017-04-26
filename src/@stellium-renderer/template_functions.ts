@@ -501,9 +501,8 @@ export class TemplateFunctions {
     }
 
 
-    private _moduleIndex: number = 0;
-    private _moduleOrder: number = 0;
-
+    private _moduleIndex: number = 0
+    private _moduleOrder: number = 0
 
     private _compileJsFiles(moduleData: any): void {
 

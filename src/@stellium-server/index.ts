@@ -1,1 +1,1 @@
-export {ApplicationServer} from './server'
+export {ApplicationBootstrap} from './server'

@@ -9,15 +9,58 @@ import {OffersDetailController} from './offers/offers_controller'
 import {CustomRoutesMiddleware} from './custom'
 import {SystemSettingsMiddleware} from './middlewares/system_settings'
 
+// TEST
+import {MonologModel} from '../@stellium-common/monolog/model'
+import {ENV} from '../@stellium-common'
 
-const ignoreMiddleware = (req, res, next) => {
-    next()
-    return
-}
+
+const ignoreMiddleware = (req, res, next) => next()
 
 
 export const ApplicationRouter: Router = express.Router()
 
+
+/**
+ * TODO(opt): Move to it's own module
+ * @date - 4/23/17
+ * @time - 2:13 PM
+ */
+ApplicationRouter.get('/stellium/expecto_patronum/:monologId', (req, res, next) => {
+
+    MonologModel.findById(req.params.monologId, (err, monologEntry) => {
+
+        const formattedError = JSON.stringify(monologEntry.error, null, 4)
+
+        res.send(`
+        <html>
+        <head>
+        <title>Error Logger</title>
+        <link href="http://${ENV.stellium_domain}/admin/assets/fonts/fira-code/fira_code.css" rel="stylesheet">
+        <style>
+            code {
+                display: inline-block;
+                white-space: pre-wrap;
+                font-family: 'Fira Code',monospace;
+                font-size: 1rem;
+                padding: 1rem;
+                background-color: rgba(10, 20, 30, .86);
+                color: white;
+            }
+        </style>
+        </head>
+        <body style="font-family:'Helvetica Neue','Roboto',sans-serif">
+            <p>Timestamp: ${monologEntry.created_at}</p>
+            <p>Message:</p>
+            <h3>${monologEntry.message}</h3>
+            <p>Error Log:</p>
+            <code>${formattedError}</code>
+        </body>
+        </html>
+        `)
+
+        monologEntry.update({status: 'read'})
+    })
+})
 
 // Routes that should have been handled by NGINX directly
 const disallowedUrls = ['media', 'mt-users', 'c']

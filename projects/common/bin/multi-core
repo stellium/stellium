@@ -1,7 +1,6 @@
 const fs = require('fs')
 const numCPUs = require('os').cpus().length
 const cluster = require('cluster')
-const stickySession = require('sticky-session')
 
 
 function initiate(env,

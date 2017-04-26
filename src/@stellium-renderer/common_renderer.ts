@@ -1,4 +1,5 @@
 import * as ejs from 'ejs'
+// import * as csurf from 'csurf'
 import * as async from 'async'
 import * as cheerio from 'cheerio'
 import {
@@ -23,9 +24,10 @@ import {toJSON} from './lib/to_json'
 const universalAnalytics = require('universal-analytics')
 
 
+// const csrfMiddleware = csurf({cookie: true})
+
 
 const redisClient = redis.createClient({db: ENV.redis_index})
-
 
 const cachePageData = (req: Request, html: string, minify = true) => {
 
@@ -112,9 +114,13 @@ export const CommonRenderer = (req: Request,
         // Use ejs as the template rendering engine
         req.app.set('view engine', 'ejs')
 
+        res.setHeader('x-frame-options', 'deny')
 
         // Whether Hot Reload is enabled
         req.app.set(CacheKeys.HotReload, req.query.hot && req.query.hot === 'true')
+
+
+        // req.app.use(csrfMiddleware)
 
 
         // Convert TemplateFunctions' class instance to plain Object
@@ -122,7 +128,11 @@ export const CommonRenderer = (req: Request,
 
 
         // Object accessible from within the ejs template
-        pageData = {...pageData, ...templateFunctions}
+        pageData = {
+            ...pageData,
+            ...templateFunctions,
+            // csrfToken: req.csrfToken()
+        }
 
 
         res.render(<string>template, pageData, (err, html) => {

@@ -1,7 +1,7 @@
 import * as path from 'path'
 import * as async from 'async'
 import * as google from 'googleapis'
-import {CacheQueryResult} from '../../resource_cache'
+import {CacheQueryResult} from '../resource_cache'
 import {AnalyticsPresets} from './analytics_presets'
 import {
     StoragePath,
@@ -9,7 +9,8 @@ import {
     getSettingsByKey,
     SettingsKeys,
     CacheKeys
-} from '../../../../@stellium-common'
+} from '../../../@stellium-common'
+import {CommonErrors} from '../../../@stellium-common/keys/errors'
 
 
 const analytics = google.analytics('v3')
@@ -67,18 +68,21 @@ export const GoogleAnalyticsController = (req, res) => {
 
         const analyticsViewID = getSettingsByKey(SettingsKeys.AnalyticsViewID, req.app.get(CacheKeys.SettingsKey), true)
 
+        console.log('analyticsViewID', analyticsViewID)
+
         async.map(AnalyticsPresets, getAnalyticsData(analyticsViewID), (err, data) => {
 
             if (err) {
 
                 if (err.code === 403) {
+                    console.log('err', err)
                     res.status(422).send({
                         message: 'No analytics account set up, please contact your developer for assistance.'
                     })
                     return
                 }
 
-                res.status(500).send()
+                res.status(500).send(CommonErrors.InternalServerError)
                 Monolog({
                     message: 'Error while fetching analytics data',
                     error: err

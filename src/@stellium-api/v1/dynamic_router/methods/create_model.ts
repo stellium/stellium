@@ -10,7 +10,11 @@ export function createModelDocument(model: Model<Document>,
 
     return function (req: Request, res: Response): void {
 
-        model.create(req.body, (err, document) => {
+        const payload = req.body
+
+        payload.user_id = req.user._id
+
+        model.create(payload, (err, document) => {
 
             if (err) {
                 res.sendStatus(500)

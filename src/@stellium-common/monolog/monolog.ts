@@ -1,6 +1,7 @@
 import 'colors';
 import * as callsite from 'callsite'
 import {MonologModel, MonologSchema} from './model'
+import {sendPushNotification} from './send_push_notifications'
 
 
 const getErrorColor = (config: MonologSchema): string => {
@@ -69,7 +70,7 @@ export const Monolog = (config: MonologSchema, callback?: Function) => {
     // Set default severity value
     config.severity = config.severity || 'severe'
 
-    if (typeof LOG_ERRORS !== 'undefined' && LOG_ERRORS) {
+    if (LOG_ERRORS) {
 
         // Console log in development
         let color = getErrorColor(config)
@@ -80,7 +81,6 @@ export const Monolog = (config: MonologSchema, callback?: Function) => {
          * @time - 10:08 PM
          */
         let filePath = config.file_path.replace(StelliumRootPath, '') + ' ' + config.line_number
-
 
         console.log()
         console.log('|----------------------------------------------------------------------------------|'[color])
@@ -97,10 +97,16 @@ export const Monolog = (config: MonologSchema, callback?: Function) => {
     } else {
 
         // Save to database in production
-        MonologModel.create(config, (err, log) => {
+        MonologModel.create(config, (err, monologEntry) => {
+
+            if (config.severity === 'severe') {
+                // Send notification to all Stellium developers on severe
+                // notification that requires immediate attention
+                sendPushNotification(config.message, monologEntry._id)
+            }
 
             // Trigger callback if provided
-            if (callback && typeof callback === 'function') callback(err, log)
+            if (callback && typeof callback === 'function') callback(err, monologEntry)
         })
     }
 }
